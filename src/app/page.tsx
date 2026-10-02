@@ -173,6 +173,10 @@ export default function Home() {
                 sampleCustomer={customers[0]}
                 onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
                 onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
+                onOpenDialer={() => {
+                  setActiveVapiCustomer(customers[0]);
+                  setIsVapiDialerOpen(true);
+                }}
               />
 
               {/* CallAI Metric KPI Cards Grid */}

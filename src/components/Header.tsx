@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, PhoneCall, Layers, Volume2, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Menu, Search, Volume2, RotateCcw, Activity } from 'lucide-react';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -47,6 +47,25 @@ export default function Header({
       </div>
 
       <div className="header-actions">
+        {/* System Status Indicator */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'var(--status-success-bg)',
+            border: '1px solid var(--status-success-border)',
+            borderRadius: 'var(--radius-pill)',
+            padding: '4px 10px',
+            fontSize: '11.5px',
+            color: 'var(--status-success-text)',
+            fontWeight: 600,
+          }}
+        >
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669' }} />
+          <span>Arya Agent Active</span>
+        </div>
+
         {/* Voice Selector button */}
         <button
           className="btn btn-secondary btn-sm"
@@ -54,27 +73,7 @@ export default function Header({
           title="Configure &amp; Test English Voice"
         >
           <Volume2 size={13} style={{ color: 'var(--indigo-primary)' }} />
-          <span>Voice: English (US)</span>
-        </button>
-
-        {/* Real phone call dialer */}
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={onOpenDialer}
-          title="Place real telephone call via Vapi API"
-        >
-          <PhoneCall size={13} />
-          <span>Vapi Dial</span>
-        </button>
-
-        {/* Blueprint */}
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={onOpenArchitecture}
-          title="View Razorpay FDE Architecture Blueprint"
-        >
-          <Layers size={13} />
-          <span>Blueprint</span>
+          <span>Strict English</span>
         </button>
 
         {/* Reset button */}
@@ -84,7 +83,7 @@ export default function Header({
           title="Reset demo records to initial state"
         >
           <RotateCcw size={13} />
-          <span>Reset</span>
+          <span>Reset Demo</span>
         </button>
       </div>
     </header>

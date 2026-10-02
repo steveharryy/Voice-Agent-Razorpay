@@ -1,18 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, Mic, Volume2, Activity } from 'lucide-react';
+import { Sparkles, Mic, PhoneCall, Volume2, Activity, ShieldCheck, Zap } from 'lucide-react';
 import { CustomerRecord } from '@/types';
 
 interface AgentShowcaseCardProps {
   onStartVoiceCall: (customer: CustomerRecord) => void;
   onOpenVoiceSettings: () => void;
+  onOpenDialer: () => void;
   sampleCustomer: CustomerRecord;
 }
 
 export default function AgentShowcaseCard({
   onStartVoiceCall,
   onOpenVoiceSettings,
+  onOpenDialer,
   sampleCustomer,
 }: AgentShowcaseCardProps) {
   return (
@@ -26,14 +28,15 @@ export default function AgentShowcaseCard({
         <div>
           <div className="agent-name-row">
             <span className="agent-name">Arya</span>
-            <span className="agent-badge-pill">AI Voice Specialist</span>
+            <span className="agent-badge-pill">Autonomous Recovery Agent</span>
             <span style={{ fontSize: '11px', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
               <Activity size={12} />
-              <span>Ready</span>
+              <span>Online &amp; Active</span>
             </span>
           </div>
+
           <div className="agent-desc">
-            Autonomous voice agent dedicated to failed autopay recovery. Explains failure codes, generates 1-click Razorpay payment links, and reschedules smart retries.
+            Autonomous voice agent dedicated to recovering failed recurring autopay payments. Reaches out empathetically, diagnoses failure reasons, generates 1-click Razorpay payment links, and reschedules smart retries.
           </div>
 
           <div className="agent-specs">
@@ -43,37 +46,46 @@ export default function AgentShowcaseCard({
             </div>
             <span style={{ color: 'var(--border-color)' }}>•</span>
             <div className="spec-item">
+              <span>Voice Engine:</span>
+              <strong>Strict English (US)</strong>
+            </div>
+            <span style={{ color: 'var(--border-color)' }}>•</span>
+            <div className="spec-item">
               <span>ASR:</span>
-              <strong>Deepgram Nova-2 (Strict EN-US)</strong>
+              <strong>Deepgram Nova-2</strong>
             </div>
             <span style={{ color: 'var(--border-color)' }}>•</span>
             <div className="spec-item">
               <span>Latency:</span>
               <strong style={{ color: 'var(--indigo-primary)' }}>&lt;520ms</strong>
             </div>
-            <span style={{ color: 'var(--border-color)' }}>•</span>
-            <div className="spec-item">
-              <span>Actions:</span>
-              <strong>4 Razorpay Tools</strong>
-            </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <button
           className="btn btn-primary"
           onClick={() => onStartVoiceCall(sampleCustomer)}
-          title="Launch interactive voice conversation with Arya"
+          title="Start interactive voice call demonstration with Arya"
         >
           <Mic size={14} />
-          <span>Talk with Arya (Mic)</span>
+          <span>Call Customer #1 ({sampleCustomer.name})</span>
         </button>
 
         <button
           className="btn btn-secondary"
+          onClick={onOpenDialer}
+          title="Place real telephone call via Vapi API"
+        >
+          <PhoneCall size={13} />
+          <span>Vapi Outbound Call</span>
+        </button>
+
+        <button
+          className="btn btn-ghost"
           onClick={onOpenVoiceSettings}
-          title="Preview and test current English voice"
+          title="Test English voice synthesis audio"
         >
           <Volume2 size={13} style={{ color: 'var(--indigo-primary)' }} />
           <span>Test Voice</span>

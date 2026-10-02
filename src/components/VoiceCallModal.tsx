@@ -17,6 +17,8 @@ import {
   Volume2,
   VolumeX,
   Radio,
+  Sparkles,
+  Info,
 } from 'lucide-react';
 
 interface VoiceCallModalProps {
@@ -46,6 +48,7 @@ export default function VoiceCallModal({
   ]);
   const [userTextInput, setUserTextInput] = useState('');
   const [activeAction, setActiveAction] = useState<AgentResponse | null>(null);
+  const [hasSpeechRec, setHasSpeechRec] = useState<boolean>(true);
 
   const recognitionRef = useRef<any>(null);
   const cancelSpeechRef = useRef<(() => void) | null>(null);
@@ -55,6 +58,14 @@ export default function VoiceCallModal({
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
+
+  // Check speech recognition support
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasRec = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+      setHasSpeechRec(hasRec);
+    }
+  }, []);
 
   // Call duration counter
   useEffect(() => {
@@ -69,8 +80,11 @@ export default function VoiceCallModal({
     };
   }, [callState]);
 
-  // Initial call sequence: Ringing for 1.8s, then connect and Arya speaks first greeting
+  // Initial call sequence: Snappy 900ms ring, then connect and Arya speaks
   useEffect(() => {
+    // Unlock AudioContext via user interaction
+    audioEffects.getContext();
+
     const stopRing = audioEffects.playRingtone();
 
     const connectTimer = setTimeout(() => {
@@ -96,7 +110,7 @@ export default function VoiceCallModal({
           }
         );
       }
-    }, 1800);
+    }, 900);
 
     return () => {
       stopRing();
@@ -119,7 +133,10 @@ export default function VoiceCallModal({
   const startVoiceRecognition = () => {
     if (typeof window === 'undefined') return;
     const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionClass) return;
+    if (!SpeechRecognitionClass) {
+      setHasSpeechRec(false);
+      return;
+    }
 
     try {
       if (recognitionRef.current) {
@@ -142,7 +159,8 @@ export default function VoiceCallModal({
         }
       };
 
-      recognition.onerror = () => {
+      recognition.onerror = (e: any) => {
+        // Silently catch common speech recognition errors (no-speech, abort)
         setIsListening(false);
       };
 
@@ -170,6 +188,7 @@ export default function VoiceCallModal({
   const handleUserInput = (inputText: string) => {
     if (!inputText.trim()) return;
 
+    // Interrupt current speech immediately (barge-in)
     stopVoiceRecognition();
     if (cancelSpeechRef.current) cancelSpeechRef.current();
 
@@ -204,6 +223,7 @@ export default function VoiceCallModal({
       });
     }
 
+    // Snappy conversational turnaround
     setTimeout(() => {
       addTranscriptItem('agent', agentRes.replyText);
 
@@ -219,7 +239,7 @@ export default function VoiceCallModal({
           }
         );
       }
-    }, 400);
+    }, 250);
   };
 
   const handleEndCall = () => {
@@ -235,7 +255,7 @@ export default function VoiceCallModal({
 
     setTimeout(() => {
       onClose();
-    }, 500);
+    }, 400);
   };
 
   const formatTimer = (seconds: number) => {
@@ -250,17 +270,25 @@ export default function VoiceCallModal({
         {/* Softphone Header */}
         <div className="call-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--indigo-primary)', display: 'inline-block' }} />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+            <span
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: callState === 'CONNECTED' ? '#10B981' : '#F59E0B',
+                display: 'inline-block',
+              }}
+            />
+            <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
               {callState === 'RINGING'
                 ? `Calling ${customer.name}...`
                 : callState === 'CONNECTED'
-                ? 'Call Active • Arya (AI)'
+                ? 'Call Active • Arya (AI Recovery Specialist)'
                 : 'Call Disconnected'}
             </span>
 
             {callState === 'CONNECTED' && (
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', marginLeft: '4px' }}>
                 {formatTimer(callDuration)}
               </span>
             )}
@@ -269,7 +297,7 @@ export default function VoiceCallModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '11px', color: 'var(--status-success-text)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
               <Radio size={11} />
-              <span>Strict EN-US</span>
+              <span>Strict English</span>
             </span>
 
             <button
@@ -281,16 +309,21 @@ export default function VoiceCallModal({
               {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
             </button>
 
-            <button className="btn btn-sm" style={{ background: '#DC2626', color: '#fff', fontWeight: 600 }} onClick={handleEndCall}>
+            <button
+              className="btn btn-sm"
+              style={{ background: '#DC2626', color: '#fff', fontWeight: 600 }}
+              onClick={handleEndCall}
+              title="Hang up call"
+            >
               <PhoneOff size={12} />
-              <span>End</span>
+              <span>End Call</span>
             </button>
           </div>
         </div>
 
         {/* Softphone Stage Box */}
         <div className="call-stage-box">
-          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '15.5px', fontWeight: 700, color: 'var(--text-primary)' }}>
             {customer.name}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
@@ -311,33 +344,52 @@ export default function VoiceCallModal({
             ))}
           </div>
 
-          <div style={{ fontSize: '11.5px', color: isSpeaking ? 'var(--indigo-primary)' : isListening ? 'var(--status-info-text)' : 'var(--text-secondary)', fontWeight: 500 }}>
+          <div
+            style={{
+              fontSize: '11.5px',
+              color: isSpeaking ? 'var(--indigo-primary)' : isListening ? 'var(--status-info-text)' : 'var(--text-secondary)',
+              fontWeight: 500,
+            }}
+          >
             {isSpeaking
               ? 'Arya is speaking in English...'
               : isListening
               ? 'Listening to microphone... (Speak now)'
-              : 'Waiting for response'}
+              : 'Waiting for response — Click any suggested reply below or speak'}
           </div>
         </div>
 
-        {/* Real-time In-Call Action Notice */}
+        {/* Real-time In-Call Action Notice: Instant Payment Link */}
         {activeAction?.actionTaken === 'SEND_PAYMENT_LINK' && (
-          <div style={{ margin: '0 20px 10px', background: 'var(--status-success-bg)', border: '1px solid var(--status-success-border)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+          <div
+            style={{
+              margin: '0 20px 10px',
+              background: 'var(--status-success-bg)',
+              border: '1px solid var(--status-success-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+            }}
+          >
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--status-success-text)' }}>
-                ✓ Razorpay Instant Payment Link Dispatched
+              <div style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--status-success-text)' }}>
+                ✓ Razorpay 1-Click Payment Link Dispatched
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                Sent via WhatsApp/SMS to {customer.phone}
+              <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                Sent via WhatsApp/SMS to {customer.phone} for ₹{customer.amount.toLocaleString('en-IN')}
               </div>
             </div>
             <button
               className="btn btn-sm"
-              style={{ background: '#10B981', color: '#fff', fontWeight: 600 }}
+              style={{ background: '#10B981', color: '#fff', fontWeight: 600, padding: '7px 12px' }}
               onClick={() => onOpenCheckout(customer)}
+              title="Test payment on Razorpay Checkout"
             >
               <ExternalLink size={12} />
-              <span>Pay Link</span>
+              <span>Open Checkout (Pay Now)</span>
             </button>
           </div>
         )}
@@ -368,12 +420,19 @@ export default function VoiceCallModal({
           <div ref={transcriptEndRef} />
         </div>
 
-        {/* Quick Suggestion Chips */}
+        {/* Quick Suggestion Chips (1-Click Interaction) */}
         {callState === 'CONNECTED' && (
           <div className="chips-container">
-            <span style={{ fontSize: '10.5px', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.4px' }}>
-              Suggestions (Click to say):
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.4px' }}>
+                Instant Replies (Click to speak):
+              </span>
+              {!hasSpeechRec && (
+                <span style={{ fontSize: '10.5px', color: 'var(--text-secondary)' }}>
+                  (Click any reply or type below)
+                </span>
+              )}
+            </div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {suggestedReplies.map((reply, idx) => (
                 <button
@@ -397,7 +456,7 @@ export default function VoiceCallModal({
             title={isListening ? 'Stop Mic' : 'Start Mic Voice Input'}
           >
             {isListening ? <MicOff size={13} /> : <Mic size={13} />}
-            <span>{isListening ? 'Listening...' : 'Speak'}</span>
+            <span>{isListening ? 'Listening...' : 'Mic Speak'}</span>
           </button>
 
           <form
@@ -410,7 +469,7 @@ export default function VoiceCallModal({
             <input
               type="text"
               className="voice-input-field"
-              placeholder="Or type what you want to say in English..."
+              placeholder="Or type customer reply in English..."
               value={userTextInput}
               onChange={(e) => setUserTextInput(e.target.value)}
             />

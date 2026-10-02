@@ -3,7 +3,7 @@
 class AudioEffectsManager {
   private ctx: AudioContext | null = null;
 
-  private getContext(): AudioContext {
+  public getContext(): AudioContext {
     if (!this.ctx) {
       const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioCtxClass();
@@ -34,7 +34,7 @@ class AudioEffectsManager {
         osc2.type = 'sine';
 
         gain.gain.setValueAtTime(0.08, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
 
         osc1.connect(gain);
         osc2.connect(gain);
@@ -42,12 +42,12 @@ class AudioEffectsManager {
 
         osc1.start();
         osc2.start();
-        osc1.stop(ctx.currentTime + 1.2);
-        osc2.stop(ctx.currentTime + 1.2);
+        osc1.stop(ctx.currentTime + 1.0);
+        osc2.stop(ctx.currentTime + 1.0);
 
         timeoutId = setTimeout(() => {
           if (isPlaying) ringBurst();
-        }, 2800);
+        }, 2200);
       };
 
       ringBurst();
@@ -214,14 +214,16 @@ export function getSelectedVoice(): SpeechSynthesisVoice | null {
   return cachedEnglishVoice;
 }
 
-// Ensure voices are loaded and cached when browser initializes
+// Pre-warm voices on startup
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
     getSelectedVoice();
   };
+  // Trigger initial getVoices call to warm up the browser engine
+  window.speechSynthesis.getVoices();
 }
 
-// Speak function strictly locking to English
+// Speak function strictly locking to English with zero drop
 export function speakText(
   text: string,
   onStart?: () => void,
@@ -232,30 +234,72 @@ export function speakText(
     return () => {};
   }
 
-  window.speechSynthesis.cancel();
+  let isCancelled = false;
+  let keepAliveInterval: any = null;
 
-  // Short pause before speaking to allow audio channel to open cleanly
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-US'; // Hardcode English (US)
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
+  try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+    window.speechSynthesis.cancel();
+  } catch {}
 
-  const chosenVoice = getSelectedVoice();
-  if (chosenVoice) {
-    utterance.voice = chosenVoice;
-    utterance.lang = chosenVoice.lang;
-  }
+  const triggerUtterance = () => {
+    if (isCancelled) return;
 
-  utterance.onstart = () => onStart?.();
-  utterance.onend = () => onEnd?.();
-  utterance.onerror = (e) => {
-    console.warn('[SpeechSynthesis] Utterance error:', e);
-    onEnd?.();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // Always lock to en-US
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    const chosenVoice = getSelectedVoice();
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+      utterance.lang = chosenVoice.lang;
+    }
+
+    utterance.onstart = () => {
+      if (isCancelled) return;
+      onStart?.();
+
+      // Chrome keep-alive hack for longer sentences
+      keepAliveInterval = setInterval(() => {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          }
+        }
+      }, 8000);
+    };
+
+    utterance.onend = () => {
+      if (keepAliveInterval) clearInterval(keepAliveInterval);
+      onEnd?.();
+    };
+
+    utterance.onerror = (e) => {
+      if (keepAliveInterval) clearInterval(keepAliveInterval);
+      console.warn('[SpeechSynthesis] Utterance finished or error:', e);
+      onEnd?.();
+    };
+
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      onEnd?.();
+    }
   };
 
-  window.speechSynthesis.speak(utterance);
+  // 40ms safe delay to avoid Chrome synchronous cancel race condition
+  const timeoutId = setTimeout(triggerUtterance, 40);
 
   return () => {
-    window.speechSynthesis.cancel();
+    isCancelled = true;
+    clearTimeout(timeoutId);
+    if (keepAliveInterval) clearInterval(keepAliveInterval);
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
   };
 }
