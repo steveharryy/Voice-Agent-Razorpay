@@ -28,7 +28,6 @@ class AudioEffectsManager {
         const osc2 = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        // Standard Indian / UK telecom ring tones (400Hz + 450Hz)
         osc1.frequency.value = 400;
         osc2.frequency.value = 450;
         osc1.type = 'sine';
@@ -107,7 +106,6 @@ class AudioEffectsManager {
     try {
       const ctx = this.getContext();
       const now = ctx.currentTime;
-      // High-converting uplifting 3-note fintech success chime: E5 -> G#5 -> B5
       const notes = [659.25, 830.61, 987.77];
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
@@ -133,7 +131,97 @@ class AudioEffectsManager {
 
 export const audioEffects = new AudioEffectsManager();
 
-// Speech Synthesis Helper
+// ============================================================================
+// Robust English-Only Voice Manager (Eliminates non-English/Bengali fallbacks)
+// ============================================================================
+
+let cachedEnglishVoice: SpeechSynthesisVoice | null = null;
+let selectedVoiceURI: string | null = null;
+
+// Blacklist non-English terms to prevent regional locale mis-detection
+const EXCLUDED_TERMS = ['bangla', 'bengali', 'hindi', 'marathi', 'tamil', 'telugu', 'gujarati', 'kannada', 'malayalam', 'punjabi', 'urdu'];
+
+export function getAvailableEnglishVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return [];
+  const allVoices = window.speechSynthesis.getVoices();
+
+  return allVoices.filter((v) => {
+    const lang = v.lang.toLowerCase();
+    const name = v.name.toLowerCase();
+
+    // Must strictly start with 'en' (e.g. en-US, en-GB, en-IN)
+    if (!lang.startsWith('en')) return false;
+
+    // Must NOT contain any non-English terms
+    if (EXCLUDED_TERMS.some((term) => name.includes(term) || lang.includes(term))) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+export function setSelectedVoiceURI(uri: string): void {
+  selectedVoiceURI = uri;
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('rzp_selected_voice', uri);
+  }
+}
+
+export function getSelectedVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+
+  const englishVoices = getAvailableEnglishVoices();
+  if (englishVoices.length === 0) return null;
+
+  // 1. Check user preference from localStorage or state
+  const savedUri = selectedVoiceURI || (typeof window !== 'undefined' ? localStorage.getItem('rzp_selected_voice') : null);
+  if (savedUri) {
+    const matched = englishVoices.find((v) => v.voiceURI === savedUri);
+    if (matched) return matched;
+  }
+
+  // 2. High-priority standard clear English voices (Female/Natural prioritized)
+  const prioritizedNames = [
+    'google us english',
+    'microsoft zira',
+    'microsoft jenny',
+    'microsoft aria',
+    'samantha',
+    'karen',
+    'victoria',
+    'serena',
+    'fiona',
+    'english united states',
+    'en-us',
+    'en-gb',
+  ];
+
+  for (const priority of prioritizedNames) {
+    const found = englishVoices.find((v) => {
+      const name = v.name.toLowerCase();
+      const lang = v.lang.toLowerCase();
+      return name.includes(priority) || lang === priority;
+    });
+    if (found) {
+      cachedEnglishVoice = found;
+      return found;
+    }
+  }
+
+  // 3. Fallback: First valid English voice
+  cachedEnglishVoice = englishVoices[0];
+  return cachedEnglishVoice;
+}
+
+// Ensure voices are loaded and cached when browser initializes
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    getSelectedVoice();
+  };
+}
+
+// Speak function strictly locking to English
 export function speakText(
   text: string,
   onStart?: () => void,
@@ -145,28 +233,25 @@ export function speakText(
   }
 
   window.speechSynthesis.cancel();
+
+  // Short pause before speaking to allow audio channel to open cleanly
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 1.02;
-  utterance.pitch = 1.05;
+  utterance.lang = 'en-US'; // Hardcode English (US)
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
 
-  // Prefer Indian English voice or natural female voice if available
-  const voices = window.speechSynthesis.getVoices();
-  const preferredVoice =
-    voices.find(
-      (v) =>
-        (v.lang.includes('en-IN') || v.name.includes('India') || v.name.includes('Indian')) &&
-        (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Google') || v.name.includes('Natural'))
-    ) ||
-    voices.find((v) => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny'))) ||
-    voices.find((v) => v.lang.startsWith('en'));
-
-  if (preferredVoice) {
-    utterance.voice = preferredVoice;
+  const chosenVoice = getSelectedVoice();
+  if (chosenVoice) {
+    utterance.voice = chosenVoice;
+    utterance.lang = chosenVoice.lang;
   }
 
   utterance.onstart = () => onStart?.();
   utterance.onend = () => onEnd?.();
-  utterance.onerror = () => onEnd?.();
+  utterance.onerror = (e) => {
+    console.warn('[SpeechSynthesis] Utterance error:', e);
+    onEnd?.();
+  };
 
   window.speechSynthesis.speak(utterance);
 
