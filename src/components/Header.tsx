@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import { PhoneCall, Layers, Volume2, RotateCcw, ShieldCheck, ChevronDown, Activity } from 'lucide-react';
+import { Menu, Search, PhoneCall, Layers, Volume2, RotateCcw, Activity } from 'lucide-react';
 
 interface HeaderProps {
+  onToggleSidebar: () => void;
+  searchTerm: string;
+  setSearchTerm: (s: string) => void;
   onOpenDialer: () => void;
   onOpenArchitecture: () => void;
   onOpenVoiceSettings: () => void;
@@ -11,43 +14,42 @@ interface HeaderProps {
 }
 
 export default function Header({
+  onToggleSidebar,
+  searchTerm,
+  setSearchTerm,
   onOpenDialer,
   onOpenArchitecture,
   onOpenVoiceSettings,
   onResetData,
 }: HeaderProps) {
   return (
-    <header className="top-navbar">
-      <div className="nav-left">
-        <div className="rzp-badge">
-          <div className="rzp-icon" title="Razorpay Subscriptions">
-            R
-          </div>
-          <div className="rzp-product-label">
-            <div className="rzp-product-name">
-              <span>Razorpay</span>
-              <span style={{ color: 'var(--razorpay-blue)' }}>R-Recover</span>
-              <span className="env-pill">
-                <span className="env-dot" />
-                Live Autopay Ops
-              </span>
-            </div>
-            <div className="rzp-sub-label">
-              Autonomous Voice Recovery Agent • UPI Autopay &amp; e-NACH Mandate Engine
-            </div>
-          </div>
+    <header className="main-header">
+      <div className="header-left">
+        <button className="menu-toggle-btn" onClick={onToggleSidebar} title="Toggle Navigation Sidebar">
+          <Menu size={18} />
+        </button>
+
+        <div className="search-bar-wrap">
+          <Search size={14} className="search-bar-icon" />
+          <input
+            type="text"
+            className="search-bar-input"
+            placeholder="Search customers, subscription IDs, failure codes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="nav-actions">
+      <div className="header-right">
         {/* Voice Selector button */}
         <button
           className="btn btn-secondary btn-sm"
           onClick={onOpenVoiceSettings}
           title="Configure &amp; Test English Voice"
-          style={{ borderColor: 'rgba(51, 149, 255, 0.35)' }}
+          style={{ borderColor: 'rgba(139, 92, 246, 0.35)' }}
         >
-          <Volume2 size={14} style={{ color: 'var(--razorpay-blue)' }} />
+          <Volume2 size={14} style={{ color: 'var(--callai-violet-light)' }} />
           <span>Voice: English (US)</span>
         </button>
 
@@ -58,7 +60,7 @@ export default function Header({
           title="Place real cellular call via Vapi API"
         >
           <PhoneCall size={14} />
-          <span>Call Phone (Vapi)</span>
+          <span>Vapi Dial</span>
         </button>
 
         {/* FDE Architecture Blueprint */}
@@ -68,7 +70,7 @@ export default function Header({
           title="View Razorpay FDE Architecture Blueprint &amp; NPCI Schemas"
         >
           <Layers size={14} />
-          <span>Architecture &amp; Design</span>
+          <span>Blueprint</span>
         </button>
 
         {/* Reset Demo button */}

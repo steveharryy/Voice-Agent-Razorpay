@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import StatsCards from '@/components/StatsCards';
+import AgentShowcaseCard from '@/components/AgentShowcaseCard';
 import CustomerTable from '@/components/CustomerTable';
 import CustomerCard from '@/components/CustomerCard';
 import CustomerDrawer from '@/components/CustomerDrawer';
+import VoiceAgentsView from '@/components/VoiceAgentsView';
 import AnalyticsView from '@/components/AnalyticsView';
 import VoiceCallModal from '@/components/VoiceCallModal';
 import RazorpayCheckoutModal from '@/components/RazorpayCheckoutModal';
@@ -14,14 +17,15 @@ import ArchitectureModal from '@/components/ArchitectureModal';
 import VoiceSettingsModal from '@/components/VoiceSettingsModal';
 import { CustomerRecord } from '@/types';
 import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
-import { Search, Filter, LayoutList, LayoutGrid, BarChart2, ShieldCheck, Activity } from 'lucide-react';
+import { LayoutList, LayoutGrid, Layers, Zap, Server } from 'lucide-react';
 
 export default function Home() {
   const [customers, setCustomers] = useState<CustomerRecord[]>(INITIAL_CUSTOMERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [activeTab, setActiveTab] = useState<'QUEUE' | 'ANALYTICS' | 'AUDIT'>('QUEUE');
+  const [activeTab, setActiveTab] = useState<'QUEUE' | 'AGENTS' | 'ANALYTICS' | 'ARCHITECTURE'>('QUEUE');
   const [viewMode, setViewMode] = useState<'TABLE' | 'GRID'>('TABLE');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Inspection Drawer
   const [inspectedCustomer, setInspectedCustomer] = useState<CustomerRecord | null>(null);
@@ -31,7 +35,7 @@ export default function Home() {
   const [activeCheckoutCustomer, setActiveCheckoutCustomer] = useState<CustomerRecord | null>(null);
   const [activeVapiCustomer, setActiveVapiCustomer] = useState<CustomerRecord | null>(null);
   const [isVapiDialerOpen, setIsVapiDialerOpen] = useState(false);
-  const [isArchitectureOpen, setIsArchitectureOpen] = useState(false);
+  const [isArchitectureModalOpen, setIsArchitectureModalOpen] = useState(false);
   const [isVoiceSettingsOpen, setIsVoiceSettingsOpen] = useState(false);
 
   // Fetch initial customer state from API if available
@@ -128,148 +132,228 @@ export default function Home() {
   });
 
   return (
-    <main className="app-shell">
-      {/* Top Application Chrome */}
-      <Header
+    <div className="dashboard-layout">
+      {/* CallAI Responsive Left Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
         onOpenDialer={() => {
           setActiveVapiCustomer(customers[0]);
           setIsVapiDialerOpen(true);
         }}
-        onOpenArchitecture={() => setIsArchitectureOpen(true)}
-        onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
         onResetData={handleResetData}
+        customerCount={customers.length}
       />
 
-      {/* KPI Performance Metrics Strip */}
-      <StatsCards customers={customers} />
+      {/* Main Viewport */}
+      <div className="main-viewport">
+        {/* Top Header Bar */}
+        <Header
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          onOpenDialer={() => {
+            setActiveVapiCustomer(customers[0]);
+            setIsVapiDialerOpen(true);
+          }}
+          onOpenArchitecture={() => setIsArchitectureModalOpen(true)}
+          onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
+          onResetData={handleResetData}
+        />
 
-      {/* Workspace Tabs */}
-      <div className="workspace-header">
-        <div className="workspace-tabs">
-          <button
-            className={`tab-btn ${activeTab === 'QUEUE' ? 'active' : ''}`}
-            onClick={() => setActiveTab('QUEUE')}
-          >
-            <span>Recovery Action Queue</span>
-            <span className="tab-count-badge">{customers.length}</span>
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'ANALYTICS' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ANALYTICS')}
-          >
-            <BarChart2 size={14} />
-            <span>Recovery Analytics &amp; Churn</span>
-          </button>
-        </div>
-
-        {/* View mode toggle (Table vs Grid) only in Queue */}
-        {activeTab === 'QUEUE' && (
-          <div className="view-mode-toggle">
-            <button
-              className={`view-mode-btn ${viewMode === 'TABLE' ? 'active' : ''}`}
-              onClick={() => setViewMode('TABLE')}
-              title="Table View (Fintech Density)"
-            >
-              <LayoutList size={15} />
-            </button>
-            <button
-              className={`view-mode-btn ${viewMode === 'GRID' ? 'active' : ''}`}
-              onClick={() => setViewMode('GRID')}
-              title="Card Grid View"
-            >
-              <LayoutGrid size={15} />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {activeTab === 'QUEUE' ? (
-        <>
-          {/* Filter & Search Toolbar */}
-          <div className="toolbar-row">
-            <div className="search-wrap">
-              <Search size={14} className="search-icon" />
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search customers, subscription IDs, failure codes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+        {/* Dashboard Content */}
+        <div className="dashboard-content">
+          {activeTab === 'QUEUE' && (
+            <>
+              {/* Hero Voice Agent Showcase Card */}
+              <AgentShowcaseCard
+                sampleCustomer={customers[0]}
+                onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
+                onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
               />
-            </div>
 
-            <div className="filter-pills">
-              <button
-                className={`filter-pill-btn ${statusFilter === 'ALL' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('ALL')}
-              >
-                All Mandates ({customers.length})
-              </button>
-              <button
-                className={`filter-pill-btn ${statusFilter === 'FAILED' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('FAILED')}
-              >
-                Pending Failure ({customers.filter((c) => c.status === 'FAILED' || c.status === 'CALLING').length})
-              </button>
-              <button
-                className={`filter-pill-btn ${statusFilter === 'PAYMENT_LINK_SENT' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('PAYMENT_LINK_SENT')}
-              >
-                Links Dispatched ({customers.filter((c) => c.status === 'PAYMENT_LINK_SENT').length})
-              </button>
-              <button
-                className={`filter-pill-btn ${statusFilter === 'RETRY_SCHEDULED' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('RETRY_SCHEDULED')}
-              >
-                Retries Set ({customers.filter((c) => c.status === 'RETRY_SCHEDULED').length})
-              </button>
-              <button
-                className={`filter-pill-btn ${statusFilter === 'RECOVERED' ? 'active' : ''}`}
-                onClick={() => setStatusFilter('RECOVERED')}
-              >
-                Recovered ({customers.filter((c) => c.status === 'RECOVERED').length})
-              </button>
-            </div>
-          </div>
+              {/* CallAI Metric KPI Cards Grid */}
+              <StatsCards customers={customers} />
 
-          {/* Table View or Grid View */}
-          {viewMode === 'TABLE' ? (
-            <CustomerTable
-              customers={filteredCustomers}
-              selectedCustomerId={inspectedCustomer?.id}
-              onSelectCustomer={(c) => setInspectedCustomer(c)}
-              onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
-              onOpenCheckout={(c) => setActiveCheckoutCustomer(c)}
-              onQuickSendLink={handleQuickSendLink}
-            />
-          ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-                gap: '16px',
-              }}
-            >
-              {filteredCustomers.map((cust) => (
-                <CustomerCard
-                  key={cust.id}
-                  customer={cust}
+              {/* Filter Toolbar */}
+              <div className="toolbar-wrap">
+                <div className="filter-group">
+                  <button
+                    className={`filter-btn ${statusFilter === 'ALL' ? 'active' : ''}`}
+                    onClick={() => setStatusFilter('ALL')}
+                  >
+                    All Mandates ({customers.length})
+                  </button>
+                  <button
+                    className={`filter-btn ${statusFilter === 'FAILED' ? 'active' : ''}`}
+                    onClick={() => setStatusFilter('FAILED')}
+                  >
+                    Pending Failure ({customers.filter((c) => c.status === 'FAILED' || c.status === 'CALLING').length})
+                  </button>
+                  <button
+                    className={`filter-btn ${statusFilter === 'PAYMENT_LINK_SENT' ? 'active' : ''}`}
+                    onClick={() => setStatusFilter('PAYMENT_LINK_SENT')}
+                  >
+                    Links Dispatched ({customers.filter((c) => c.status === 'PAYMENT_LINK_SENT').length})
+                  </button>
+                  <button
+                    className={`filter-btn ${statusFilter === 'RETRY_SCHEDULED' ? 'active' : ''}`}
+                    onClick={() => setStatusFilter('RETRY_SCHEDULED')}
+                  >
+                    Retries Set ({customers.filter((c) => c.status === 'RETRY_SCHEDULED').length})
+                  </button>
+                  <button
+                    className={`filter-btn ${statusFilter === 'RECOVERED' ? 'active' : ''}`}
+                    onClick={() => setStatusFilter('RECOVERED')}
+                  >
+                    Recovered ({customers.filter((c) => c.status === 'RECOVERED').length})
+                  </button>
+                </div>
+
+                <div className="view-toggle-wrap">
+                  <button
+                    className={`view-btn ${viewMode === 'TABLE' ? 'active' : ''}`}
+                    onClick={() => setViewMode('TABLE')}
+                    title="Table View (Fintech Density)"
+                  >
+                    <LayoutList size={15} />
+                  </button>
+                  <button
+                    className={`view-btn ${viewMode === 'GRID' ? 'active' : ''}`}
+                    onClick={() => setViewMode('GRID')}
+                    title="Grid View"
+                  >
+                    <LayoutGrid size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Operations Table or Card Grid */}
+              {viewMode === 'TABLE' ? (
+                <CustomerTable
+                  customers={filteredCustomers}
+                  selectedCustomerId={inspectedCustomer?.id}
+                  onSelectCustomer={(c) => setInspectedCustomer(c)}
                   onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
-                  onCallViaVapi={(c) => {
-                    setActiveVapiCustomer(c);
-                    setIsVapiDialerOpen(true);
-                  }}
                   onOpenCheckout={(c) => setActiveCheckoutCustomer(c)}
                   onQuickSendLink={handleQuickSendLink}
                 />
-              ))}
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
+                    gap: '16px',
+                  }}
+                >
+                  {filteredCustomers.map((cust) => (
+                    <CustomerCard
+                      key={cust.id}
+                      customer={cust}
+                      onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
+                      onCallViaVapi={(c) => {
+                        setActiveVapiCustomer(c);
+                        setIsVapiDialerOpen(true);
+                      }}
+                      onOpenCheckout={(c) => setActiveCheckoutCustomer(c)}
+                      onQuickSendLink={handleQuickSendLink}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === 'AGENTS' && (
+            <VoiceAgentsView
+              sampleCustomer={customers[0]}
+              onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
+              onOpenVoiceSettings={() => setIsVoiceSettingsOpen(true)}
+            />
+          )}
+
+          {activeTab === 'ANALYTICS' && (
+            <AnalyticsView customers={customers} />
+          )}
+
+          {activeTab === 'ARCHITECTURE' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
+                    Razorpay Forward Deployed Engineer (FDE) Blueprint
+                  </h2>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    End-to-end event-driven architecture, NPCI e-Mandate webhook pipelines, and voice latency optimization.
+                  </p>
+                </div>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setIsArchitectureModalOpen(true)}
+                >
+                  <Layers size={13} />
+                  <span>Open Full Blueprint Modal</span>
+                </button>
+              </div>
+
+              <div className="blueprint-card">
+                <h3>
+                  <Server size={16} style={{ color: 'var(--callai-violet-light)' }} />
+                  End-to-End Event Flow Architecture
+                </h3>
+                <div className="code-block" style={{ whiteSpace: 'pre', fontSize: '12px' }}>
+{`
++---------------------------------------------------------------------------------------------------+
+|                                 RAZORPAY RECURRING BILLING ENGINE                                 |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                  (1) Failed Debit Event: 'payment.failed' / 'subscription.pending'
+                                                  v
++---------------------------------------------------------------------------------------------------+
+|                              CALLAI EVENT INGESTION & DISPATCHER                                  |
+|   - Razorpay Webhook Ingestion (/api/webhooks/razorpay)                                           |
+|   - Failure Reason Categorization (Insufficient Balance, Mandate Expired, Bank Timeout)           |
+|   - RBI Pre-Debit Rule Validation & Smart Scheduling Window (09:00 - 20:00 IST)                   |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                     (2) Dispatches Contextual Outbound Recovery Session
+                                                  v
++---------------------------------------------------------------------------------------------------+
+|                                   VOICE AGENT ORCHESTRATION                                       |
+|  Engine A: Telephony Engine (Vapi.ai REST API -> PSTN/SIP Trunk -> Customer Phone)               |
+|  Engine B: Interactive Web Voice Agent (WebRTC / Web Speech API -> Browser Mic/Speaker)           |
+|  - ASR: Deepgram Nova-2 (Optimized for Indian English & Strict English)                          |
+|  - LLM: GPT-4o-mini with Razorpay Autopay Recovery Playbook & Security Guardrails                |
+|  - TTS: Natural Conversational Voice (ElevenLabs Aria / Strict EN-US Web Speech)                 |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                     (3) In-Call Real-Time Tool Calling & Remediation
+                                                  v
++---------------------------------------------------------------------------------------------------+
+|                                 RAZORPAY RECOVERY TOOL ACTIONS                                    |
+|   [Tool 1: send_payment_link]      -> Generates 1-Click Razorpay Payment Link (WhatsApp/SMS)      |
+|   [Tool 2: schedule_retry]         -> Registers Next Auto-Debit in Razorpay Subscriptions Queue    |
+|   [Tool 3: update_payment_mandate] -> Dispatches 1-Click Mandate Re-registration Flow             |
+|   [Tool 4: escalate_to_human]      -> Pauses Debits & Flags Ticket for High-Touch RM              |
++---------------------------------------------------------------------------------------------------+
+                                                  |
+                     (4) Customer Pays Link / Retries Mandate
+                                                  v
++---------------------------------------------------------------------------------------------------+
+|                              SETTLEMENT, WEBSOCKET & RECONCILIATION                               |
+|   - Webhook: 'payment.captured' -> Updates Status to RECOVERED                                    |
+|   - Real-time Analytics: Salvaged ARR, Churn Prevented, First-Call Resolution (FCR) Rate          |
++---------------------------------------------------------------------------------------------------+
+`}
+                </div>
+              </div>
             </div>
           )}
-        </>
-      ) : (
-        <AnalyticsView customers={customers} />
-      )}
+        </div>
+      </div>
 
       {/* Slide-over Inspection Drawer */}
       {inspectedCustomer && (
@@ -282,7 +366,7 @@ export default function Home() {
         />
       )}
 
-      {/* Interactive Softphone Voice Call Modal (Strictly English Voice) */}
+      {/* Interactive Softphone Voice Call Modal */}
       {activeVoiceCallCustomer && (
         <VoiceCallModal
           customer={activeVoiceCallCustomer}
@@ -331,9 +415,9 @@ export default function Home() {
       )}
 
       {/* Architecture & FDE System Design Blueprint Modal */}
-      {isArchitectureOpen && (
-        <ArchitectureModal onClose={() => setIsArchitectureOpen(false)} />
+      {isArchitectureModalOpen && (
+        <ArchitectureModal onClose={() => setIsArchitectureModalOpen(false)} />
       )}
-    </main>
+    </div>
   );
 }

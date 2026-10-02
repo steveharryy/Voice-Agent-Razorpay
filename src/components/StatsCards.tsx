@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CustomerRecord } from '@/types';
-import { IndianRupee, TrendingUp, AlertTriangle, CheckCircle2, Clock, Send, Calendar } from 'lucide-react';
+import { AlertCircle, TrendingUp, CheckCircle2, Clock, Send, Calendar } from 'lucide-react';
 
 interface StatsCardsProps {
   customers: CustomerRecord[];
@@ -19,85 +19,82 @@ export default function StatsCards({ customers }: StatsCardsProps) {
   const failedCount = customers.filter((c) => c.status === 'FAILED' || c.status === 'CALLING').length;
 
   return (
-    <div className="kpi-strip">
-      <div className="kpi-card">
-        <div className="kpi-header">
-          <span className="kpi-title">Total Overdue Autopay</span>
-          <AlertTriangle size={14} style={{ color: '#f43f5e' }} />
+    <div className="kpi-grid">
+      {/* Card 1: Overdue Autopay */}
+      <div className="callai-card">
+        <div className="card-header-row">
+          <span className="card-title">Total Overdue Autopay</span>
+          <div className="card-icon-pill" style={{ color: '#f43f5e' }}>
+            <AlertCircle size={16} />
+          </div>
         </div>
-        <div className="kpi-value-row">
-          <span className="kpi-value">₹{totalAmount.toLocaleString('en-IN')}</span>
-          <span className="kpi-subtext">across 10 mandates</span>
+        <div className="card-value">₹{totalAmount.toLocaleString('en-IN')}</div>
+        <div className="card-subtext">
+          <span>{failedCount} mandates pending recovery</span>
         </div>
-        <div className="kpi-subtext">
-          {failedCount} subscriptions currently pending recovery
-        </div>
-        <div className="kpi-progress-bar">
-          <div className="kpi-progress-fill" style={{ width: '100%', background: '#f43f5e' }} />
-        </div>
-      </div>
-
-      <div className="kpi-card">
-        <div className="kpi-header">
-          <span className="kpi-title">Recovered Revenue</span>
-          <TrendingUp size={14} style={{ color: '#10b981' }} />
-        </div>
-        <div className="kpi-value-row">
-          <span className="kpi-value" style={{ color: '#10b981' }}>
-            ₹{recoveredAmount.toLocaleString('en-IN')}
-          </span>
-          <span className="kpi-subtext">
-            {recoveredCustomers.length} of {customers.length} salvaged
-          </span>
-        </div>
-        <div className="kpi-subtext">
-          Recovered via instant WhatsApp link / card authorization
-        </div>
-        <div className="kpi-progress-bar">
-          <div className="kpi-progress-fill" style={{ width: `${recoveryRate}%`, background: '#10b981' }} />
+        <div className="card-progress">
+          <div className="card-progress-bar" style={{ width: '100%', background: '#f43f5e' }} />
         </div>
       </div>
 
-      <div className="kpi-card">
-        <div className="kpi-header">
-          <span className="kpi-title">Voice Recovery Rate</span>
-          <CheckCircle2 size={14} style={{ color: 'var(--razorpay-blue)' }} />
+      {/* Card 2: Recovered Revenue */}
+      <div className="callai-card">
+        <div className="card-header-row">
+          <span className="card-title">Recovered Revenue</span>
+          <div className="card-icon-pill" style={{ color: '#10b981' }}>
+            <TrendingUp size={16} />
+          </div>
         </div>
-        <div className="kpi-value-row">
-          <span className="kpi-value" style={{ color: 'var(--razorpay-blue)' }}>
-            {recoveryRate}%
-          </span>
-          <span className="kpi-subtext">FCR benchmark: &gt;65%</span>
+        <div className="card-value" style={{ color: '#10b981' }}>
+          ₹{recoveredAmount.toLocaleString('en-IN')}
         </div>
-        <div className="kpi-subtext">
-          First-Call Resolution (FCR) target achieved
+        <div className="card-subtext">
+          <span>{recoveredCustomers.length} of {customers.length} accounts salvaged</span>
         </div>
-        <div className="kpi-progress-bar">
-          <div className="kpi-progress-fill" style={{ width: `${recoveryRate}%` }} />
+        <div className="card-progress">
+          <div className="card-progress-bar" style={{ width: `${recoveryRate}%`, background: '#10b981' }} />
         </div>
       </div>
 
-      <div className="kpi-card">
-        <div className="kpi-header">
-          <span className="kpi-title">In-Flight Queue</span>
-          <Clock size={14} style={{ color: '#8b5cf6' }} />
+      {/* Card 3: Voice Recovery Rate */}
+      <div className="callai-card">
+        <div className="card-header-row">
+          <span className="card-title">Recovery Success Rate</span>
+          <div className="card-icon-pill" style={{ color: 'var(--callai-violet)' }}>
+            <CheckCircle2 size={16} />
+          </div>
         </div>
-        <div className="kpi-value-row">
-          <span className="kpi-value" style={{ color: '#c084fc', fontSize: '20px' }}>
-            {pendingLinks} Links
-          </span>
-          <span style={{ color: 'var(--text-muted)' }}>•</span>
-          <span className="kpi-value" style={{ color: '#f59e0b', fontSize: '20px' }}>
-            {scheduledRetries} Retries
-          </span>
+        <div className="card-value" style={{ color: 'var(--callai-violet-light)' }}>
+          {recoveryRate}%
         </div>
-        <div className="kpi-subtext">
-          Active recovery workflows being tracked
+        <div className="card-subtext">
+          <span>Benchmark: &gt;65% FCR</span>
         </div>
-        <div className="kpi-progress-bar">
+        <div className="card-progress">
+          <div className="card-progress-bar" style={{ width: `${recoveryRate}%`, background: 'var(--gradient-primary)' }} />
+        </div>
+      </div>
+
+      {/* Card 4: In-Flight Operations */}
+      <div className="callai-card">
+        <div className="card-header-row">
+          <span className="card-title">In-Flight Queue</span>
+          <div className="card-icon-pill" style={{ color: '#06b6d4' }}>
+            <Clock size={16} />
+          </div>
+        </div>
+        <div className="card-value" style={{ color: '#38bdf8', fontSize: '22px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>{pendingLinks} Links</span>
+          <span style={{ color: 'var(--text-faint)' }}>•</span>
+          <span style={{ color: '#f59e0b' }}>{scheduledRetries} Retries</span>
+        </div>
+        <div className="card-subtext">
+          <span>Active recovery workflows</span>
+        </div>
+        <div className="card-progress">
           <div
-            className="kpi-progress-fill"
-            style={{ width: `${((pendingLinks + scheduledRetries) / 10) * 100}%`, background: '#8b5cf6' }}
+            className="card-progress-bar"
+            style={{ width: `${((pendingLinks + scheduledRetries) / 10) * 100}%`, background: '#06b6d4' }}
           />
         </div>
       </div>
