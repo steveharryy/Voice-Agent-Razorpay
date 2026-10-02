@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
 import { buildVapiAssistantConfig } from '@/data/vapiAssistantConfig';
-import { Settings, Copy, Check, X, Code2 } from 'lucide-react';
+import { Settings, Copy, Check, X } from 'lucide-react';
 
 interface VapiConfigModalProps {
   onClose: () => void;
@@ -30,39 +30,42 @@ export default function VapiConfigModal({ onClose }: VapiConfigModalProps) {
       >
         <div className="call-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Settings size={18} style={{ color: 'var(--brand-blue)' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Vapi Assistant Configuration Payload</h3>
+            <Settings size={16} style={{ color: 'var(--indigo-primary)' }} />
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Vapi Assistant Configuration Payload
+            </h3>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '6px' }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <p style={{ fontSize: '13px', color: '#cbd5e1' }}>
-              Import this JSON directly into <a href="https://dashboard.vapi.ai" target="_blank" rel="noreferrer" style={{ color: '#38bdf8' }}>Vapi Dashboard</a> to create the Razorpay Autopay Recovery Assistant.
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+              Import this JSON directly into <a href="https://dashboard.vapi.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--indigo-primary)', fontWeight: 600 }}>Vapi Dashboard</a> to create the Razorpay Autopay Recovery Assistant.
             </p>
             <button className="btn btn-secondary btn-sm" onClick={handleCopy}>
-              {copied ? <Check size={14} style={{ color: '#10b981' }} /> : <Copy size={14} />}
+              {copied ? <Check size={13} style={{ color: 'var(--status-success-text)' }} /> : <Copy size={13} />}
               <span>{copied ? 'Copied JSON!' : 'Copy JSON'}</span>
             </button>
           </div>
 
           <div
             style={{
-              background: '#040810',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: '8px',
+              background: '#F8F9FB',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-sm)',
               padding: '16px',
-              maxHeight: '450px',
+              maxHeight: '440px',
               overflowY: 'auto',
             }}
           >
-            <pre style={{ color: '#38bdf8', fontSize: '12px', fontFamily: 'monospace', lineHeight: '1.5' }}>
+            <pre style={{ color: '#1E293B', fontSize: '11.5px', fontFamily: 'var(--font-mono)', lineHeight: '1.5' }}>
               {jsonString}
             </pre>
           </div>

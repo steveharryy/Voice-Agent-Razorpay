@@ -53,49 +53,50 @@ export default function VoiceSettingsModal({ onClose }: VoiceSettingsModalProps)
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="call-modal" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
+      <div className="call-modal" style={{ maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
         <div className="call-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sliders size={18} style={{ color: 'var(--brand-blue)' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Audio &amp; Voice Configuration</h3>
+            <Sliders size={16} style={{ color: 'var(--indigo-primary)' }} />
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>Audio &amp; Voice Settings</h3>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '6px' }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: '20px' }}>
           <div
             style={{
-              background: 'rgba(16, 185, 129, 0.08)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              borderRadius: '8px',
-              padding: '12px 14px',
+              background: 'var(--status-success-bg)',
+              border: '1px solid var(--status-success-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '10px 12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              marginBottom: '20px',
+              gap: '8px',
+              marginBottom: '16px',
             }}
           >
-            <ShieldCheck size={18} style={{ color: '#10b981', flexShrink: 0 }} />
-            <div style={{ fontSize: '12.5px', color: '#cbd5e1' }}>
-              <strong>Strict English Filter Active:</strong> Regional non-English voices (Bengali, Hindi) have been blocked. Only verified English voices are shown below.
+            <ShieldCheck size={16} style={{ color: 'var(--status-success-text)', flexShrink: 0 }} />
+            <div style={{ fontSize: '12px', color: 'var(--status-success-text)', fontWeight: 500 }}>
+              <strong>Strict English Filter Active:</strong> Only verified English voices are loaded. Non-English voices (Bengali, Hindi) are completely blocked.
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>
-              Select Active English Voice ({voices.length} Available)
+            <label style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              Detected English Voices ({voices.length})
             </label>
             <button
               className="btn btn-primary btn-sm"
               onClick={() => handleTestVoice()}
               disabled={isPlayingTest}
             >
-              <Play size={13} />
+              <Play size={12} />
               <span>{isPlayingTest ? 'Speaking...' : 'Test Current Voice'}</span>
             </button>
           </div>
@@ -104,14 +105,14 @@ export default function VoiceSettingsModal({ onClose }: VoiceSettingsModalProps)
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
-              maxHeight: '300px',
+              gap: '6px',
+              maxHeight: '280px',
               overflowY: 'auto',
-              paddingRight: '4px',
+              paddingRight: '2px',
             }}
           >
             {voices.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)', fontSize: '13px' }}>
+              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                 Detecting browser English voices...
               </div>
             ) : (
@@ -122,30 +123,30 @@ export default function VoiceSettingsModal({ onClose }: VoiceSettingsModalProps)
                     key={v.voiceURI}
                     onClick={() => handleSelect(v.voiceURI)}
                     style={{
-                      background: isSelected ? 'rgba(51, 149, 255, 0.15)' : 'rgba(12, 23, 44, 0.6)',
-                      border: `1px solid ${isSelected ? 'var(--brand-blue)' : 'var(--border-subtle)'}`,
-                      borderRadius: '8px',
-                      padding: '12px 16px',
+                      background: isSelected ? 'var(--indigo-subtle)' : '#FFFFFF',
+                      border: `1px solid ${isSelected ? 'var(--indigo-primary)' : 'var(--border-color)'}`,
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '10px 14px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       cursor: 'pointer',
-                      transition: 'all 0.15s ease',
+                      transition: 'all 0.12s ease',
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '13.5px', fontWeight: 600, color: isSelected ? '#fff' : '#cbd5e1' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: isSelected ? 'var(--indigo-primary)' : 'var(--text-primary)' }}>
                         {v.name}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                        Language: {v.lang} {v.default ? '• Default OS Voice' : ''}
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                        Language: {v.lang} {v.default ? '• System Default' : ''}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <button
                         className="btn btn-secondary btn-sm"
-                        style={{ padding: '4px 8px', fontSize: '11px' }}
+                        style={{ padding: '3px 7px', fontSize: '11px' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleTestVoice(v.voiceURI);
@@ -154,7 +155,7 @@ export default function VoiceSettingsModal({ onClose }: VoiceSettingsModalProps)
                       >
                         <Volume2 size={12} />
                       </button>
-                      {isSelected && <Check size={16} style={{ color: 'var(--brand-blue)' }} />}
+                      {isSelected && <Check size={14} style={{ color: 'var(--indigo-primary)' }} />}
                     </div>
                   </div>
                 );
@@ -162,8 +163,8 @@ export default function VoiceSettingsModal({ onClose }: VoiceSettingsModalProps)
             )}
           </div>
 
-          <div style={{ marginTop: '20px', textAlign: 'right' }}>
-            <button className="btn btn-primary" onClick={onClose}>
+          <div style={{ marginTop: '18px', textAlign: 'right' }}>
+            <button className="btn btn-primary btn-sm" onClick={onClose}>
               Done
             </button>
           </div>

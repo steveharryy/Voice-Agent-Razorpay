@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, PhoneCall, Layers, Volume2, RotateCcw, Activity } from 'lucide-react';
+import { Menu, Search, PhoneCall, Layers, Volume2, RotateCcw, ShieldCheck } from 'lucide-react';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -23,33 +23,37 @@ export default function Header({
   onResetData,
 }: HeaderProps) {
   return (
-    <header className="main-header">
-      <div className="header-left">
-        <button className="menu-toggle-btn" onClick={onToggleSidebar} title="Toggle Navigation Sidebar">
-          <Menu size={18} />
+    <header className="top-header">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: '240px' }}>
+        <button
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'none', padding: '6px' }}
+          onClick={onToggleSidebar}
+          title="Toggle Navigation"
+        >
+          <Menu size={16} />
         </button>
 
-        <div className="search-bar-wrap">
-          <Search size={14} className="search-bar-icon" />
+        <div className="header-search-wrap">
+          <Search size={14} className="header-search-icon" />
           <input
             type="text"
-            className="search-bar-input"
-            placeholder="Search customers, subscription IDs, failure codes..."
+            className="header-search-input"
+            placeholder="Search customers, subscription IDs, failure codes... (⌘K)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="header-right">
+      <div className="header-actions">
         {/* Voice Selector button */}
         <button
           className="btn btn-secondary btn-sm"
           onClick={onOpenVoiceSettings}
           title="Configure &amp; Test English Voice"
-          style={{ borderColor: 'rgba(139, 92, 246, 0.35)' }}
         >
-          <Volume2 size={14} style={{ color: 'var(--callai-violet-light)' }} />
+          <Volume2 size={13} style={{ color: 'var(--indigo-primary)' }} />
           <span>Voice: English (US)</span>
         </button>
 
@@ -57,27 +61,27 @@ export default function Header({
         <button
           className="btn btn-secondary btn-sm"
           onClick={onOpenDialer}
-          title="Place real cellular call via Vapi API"
+          title="Place real telephone call via Vapi API"
         >
-          <PhoneCall size={14} />
+          <PhoneCall size={13} />
           <span>Vapi Dial</span>
         </button>
 
-        {/* FDE Architecture Blueprint */}
+        {/* Blueprint */}
         <button
           className="btn btn-secondary btn-sm"
           onClick={onOpenArchitecture}
-          title="View Razorpay FDE Architecture Blueprint &amp; NPCI Schemas"
+          title="View Razorpay FDE Architecture Blueprint"
         >
-          <Layers size={14} />
+          <Layers size={13} />
           <span>Blueprint</span>
         </button>
 
-        {/* Reset Demo button */}
+        {/* Reset button */}
         <button
           className="btn btn-ghost btn-sm"
           onClick={onResetData}
-          title="Reset 10 customer records to initial state"
+          title="Reset demo records to initial state"
         >
           <RotateCcw size={13} />
           <span>Reset</span>

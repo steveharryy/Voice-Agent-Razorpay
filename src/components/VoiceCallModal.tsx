@@ -17,9 +17,6 @@ import {
   Volume2,
   VolumeX,
   Radio,
-  ShieldCheck,
-  Clock,
-  Sparkles,
 } from 'lucide-react';
 
 interface VoiceCallModalProps {
@@ -252,58 +249,57 @@ export default function VoiceCallModal({
       <div className="call-modal" onClick={(e) => e.stopPropagation()}>
         {/* Softphone Header */}
         <div className="call-modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div className="call-status-pill">
-              <div className="call-status-dot" />
-              <span>
-                {callState === 'RINGING'
-                  ? `Dialing ${customer.name}...`
-                  : callState === 'CONNECTED'
-                  ? 'Connected with Arya'
-                  : 'Call Disconnected'}
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--indigo-primary)', display: 'inline-block' }} />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+              {callState === 'RINGING'
+                ? `Calling ${customer.name}...`
+                : callState === 'CONNECTED'
+                ? 'Call Active • Arya (AI)'
+                : 'Call Disconnected'}
+            </span>
 
             {callState === 'CONNECTED' && (
-              <span style={{ fontSize: '11.5px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
                 {formatTimer(callDuration)}
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--status-success-text)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
               <Radio size={11} />
-              <span>HD Audio (EN-US)</span>
+              <span>Strict EN-US</span>
             </span>
 
             <button
               className="btn btn-secondary btn-sm"
+              style={{ padding: '5px 8px' }}
               onClick={() => setIsMuted(!isMuted)}
               title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             >
               {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
             </button>
 
-            <button className="btn btn-sm" style={{ background: '#f43f5e', color: '#fff' }} onClick={handleEndCall}>
-              <PhoneOff size={13} />
-              <span>End Call</span>
+            <button className="btn btn-sm" style={{ background: '#DC2626', color: '#fff', fontWeight: 600 }} onClick={handleEndCall}>
+              <PhoneOff size={12} />
+              <span>End</span>
             </button>
           </div>
         </div>
 
-        {/* Softphone Stage / Customer Meta */}
-        <div className="call-stage-center">
-          <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>
+        {/* Softphone Stage Box */}
+        <div className="call-stage-box">
+          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
             {customer.name}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
             {customer.merchantName} ({customer.planName}) • ₹{customer.amount.toLocaleString('en-IN')} Due
           </div>
 
-          {/* Minimalist Stereo Audio Frequency Bars */}
-          <div className="audio-frequency-meter">
-            {[10, 18, 8, 22, 14, 10, 20, 12, 16, 8, 20, 14].map((h, i) => (
+          {/* Minimalist Stereo Frequency Bars */}
+          <div className="audio-freq-bars">
+            {[8, 16, 6, 18, 12, 8, 16, 10, 14, 6, 16, 10].map((h, i) => (
               <div
                 key={i}
                 className={`freq-bar ${isSpeaking || isListening ? 'active' : ''}`}
@@ -315,57 +311,57 @@ export default function VoiceCallModal({
             ))}
           </div>
 
-          <div style={{ fontSize: '11.5px', color: isSpeaking ? 'var(--razorpay-blue)' : isListening ? 'var(--razorpay-cyan)' : 'var(--text-muted)' }}>
+          <div style={{ fontSize: '11.5px', color: isSpeaking ? 'var(--indigo-primary)' : isListening ? 'var(--status-info-text)' : 'var(--text-secondary)', fontWeight: 500 }}>
             {isSpeaking
               ? 'Arya is speaking in English...'
               : isListening
-              ? 'Listening to your microphone... (Speak now)'
+              ? 'Listening to microphone... (Speak now)'
               : 'Waiting for response'}
           </div>
         </div>
 
         {/* Real-time In-Call Action Notice */}
         {activeAction?.actionTaken === 'SEND_PAYMENT_LINK' && (
-          <div className="in-call-action-alert">
+          <div style={{ margin: '0 20px 10px', background: 'var(--status-success-bg)', border: '1px solid var(--status-success-border)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#10b981' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--status-success-text)' }}>
                 ✓ Razorpay Instant Payment Link Dispatched
               </div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                 Sent via WhatsApp/SMS to {customer.phone}
               </div>
             </div>
             <button
               className="btn btn-sm"
-              style={{ background: '#10b981', color: '#fff' }}
+              style={{ background: '#10B981', color: '#fff', fontWeight: 600 }}
               onClick={() => onOpenCheckout(customer)}
             >
               <ExternalLink size={12} />
-              <span>Open Checkout</span>
+              <span>Pay Link</span>
             </button>
           </div>
         )}
 
         {/* Live Conversation Transcript Feed */}
-        <div className="transcript-box">
+        <div className="transcript-container">
           {transcript.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', padding: '16px' }}>
-              Establishing secure encrypted voice connection...
+            <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '12px', padding: '14px' }}>
+              Connecting with voice network...
             </div>
           ) : (
             transcript.map((item) => (
-              <div key={item.id} className="transcript-entry">
+              <div key={item.id} className="transcript-item">
                 <div
-                  className={`speaker-badge ${
+                  className={`transcript-speaker ${
                     item.sender === 'agent' ? 'speaker-agent' : 'speaker-customer'
                   }`}
                 >
-                  <span>{item.sender === 'agent' ? 'Arya (Razorpay AI)' : 'You (Customer)'}</span>
-                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  <span>{item.sender === 'agent' ? 'Arya (AI)' : 'You (Customer)'}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 400 }}>
                     {item.timestamp}
                   </span>
                 </div>
-                <div className="transcript-text">{item.message}</div>
+                <div className="transcript-bubble">{item.message}</div>
               </div>
             ))
           )}
@@ -374,13 +370,15 @@ export default function VoiceCallModal({
 
         {/* Quick Suggestion Chips */}
         {callState === 'CONNECTED' && (
-          <div className="quick-replies-wrap">
-            <span className="quick-reply-label">Quick Suggestions (Click to speak):</span>
-            <div className="quick-chips-row">
+          <div className="chips-container">
+            <span style={{ fontSize: '10.5px', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.4px' }}>
+              Suggestions (Click to say):
+            </span>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {suggestedReplies.map((reply, idx) => (
                 <button
                   key={idx}
-                  className="quick-chip"
+                  className="chip-btn"
                   onClick={() => handleUserInput(reply)}
                 >
                   "{reply}"
@@ -393,16 +391,17 @@ export default function VoiceCallModal({
         {/* Footer Voice Input Bar */}
         <div className="call-modal-footer">
           <button
-            className={`btn btn-sm ${isListening ? 'btn-danger' : 'btn-secondary'}`}
+            className={`btn btn-sm ${isListening ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ background: isListening ? '#DC2626' : undefined }}
             onClick={isListening ? stopVoiceRecognition : startVoiceRecognition}
             title={isListening ? 'Stop Mic' : 'Start Mic Voice Input'}
           >
-            {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+            {isListening ? <MicOff size={13} /> : <Mic size={13} />}
             <span>{isListening ? 'Listening...' : 'Speak'}</span>
           </button>
 
           <form
-            className="voice-input-bar"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}
             onSubmit={(e) => {
               e.preventDefault();
               handleUserInput(userTextInput);
@@ -410,13 +409,13 @@ export default function VoiceCallModal({
           >
             <input
               type="text"
-              className="voice-text-input"
-              placeholder="Or type what you want to say to Arya in English..."
+              className="voice-input-field"
+              placeholder="Or type what you want to say in English..."
               value={userTextInput}
               onChange={(e) => setUserTextInput(e.target.value)}
             />
             <button type="submit" className="btn btn-primary btn-sm" disabled={!userTextInput.trim()}>
-              <Send size={13} />
+              <Send size={12} />
             </button>
           </form>
         </div>

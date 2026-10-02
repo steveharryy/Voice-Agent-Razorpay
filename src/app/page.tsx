@@ -283,7 +283,7 @@ export default function Home() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
                     Razorpay Forward Deployed Engineer (FDE) Blueprint
                   </h2>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
@@ -300,11 +300,26 @@ export default function Home() {
               </div>
 
               <div className="blueprint-card">
-                <h3>
-                  <Server size={16} style={{ color: 'var(--callai-violet-light)' }} />
-                  End-to-End Event Flow Architecture
-                </h3>
-                <div className="code-block" style={{ whiteSpace: 'pre', fontSize: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <Server size={16} style={{ color: 'var(--indigo-primary)' }} />
+                  <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    End-to-End Event Flow Architecture
+                  </h3>
+                </div>
+                <div
+                  style={{
+                    background: '#F8F9FB',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '16px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11.5px',
+                    color: '#1E293B',
+                    overflowX: 'auto',
+                    lineHeight: '1.5',
+                    whiteSpace: 'pre',
+                  }}
+                >
 {`
 +---------------------------------------------------------------------------------------------------+
 |                                 RAZORPAY RECURRING BILLING ENGINE                                 |

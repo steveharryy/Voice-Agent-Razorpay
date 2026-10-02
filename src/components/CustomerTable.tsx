@@ -71,17 +71,17 @@ export default function CustomerTable({
   const getMandateIcon = (type: CustomerRecord['mandateType']) => {
     switch (type) {
       case 'UPI_AUTOPAY':
-        return <QrCode size={12} style={{ color: '#06b6d4' }} />;
+        return <QrCode size={12} style={{ color: 'var(--status-info-text)' }} />;
       case 'E_NACH':
-        return <Building2 size={12} style={{ color: '#38bdf8' }} />;
+        return <Building2 size={12} style={{ color: 'var(--status-info-text)' }} />;
       default:
-        return <CreditCard size={12} style={{ color: '#a78bfa' }} />;
+        return <CreditCard size={12} style={{ color: 'var(--indigo-primary)' }} />;
     }
   };
 
   return (
     <div className="table-card">
-      <table className="callai-table">
+      <table className="data-table">
         <thead>
           <tr>
             <th>Customer &amp; Plan</th>
@@ -102,16 +102,16 @@ export default function CustomerTable({
             return (
               <tr
                 key={c.id}
-                className={`table-row ${isSelected ? 'active' : ''}`}
+                className={`data-row ${isSelected ? 'active' : ''}`}
                 onClick={() => onSelectCustomer(c)}
               >
                 {/* Customer Column */}
                 <td>
-                  <div className="table-customer-wrap">
-                    <div className="table-avatar">{c.name.charAt(0)}</div>
+                  <div className="table-customer">
+                    <div className="customer-avatar-box">{c.name.charAt(0)}</div>
                     <div>
-                      <div className="table-customer-name">{c.name}</div>
-                      <div className="table-customer-meta">
+                      <div className="customer-name">{c.name}</div>
+                      <div className="customer-meta">
                         {c.merchantName} • {c.planName}
                       </div>
                     </div>
@@ -120,9 +120,9 @@ export default function CustomerTable({
 
                 {/* Amount Column */}
                 <td>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
                     ₹{c.amount.toLocaleString('en-IN')}
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 400, marginLeft: '3px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 400, marginLeft: '3px' }}>
                       /{c.billingFrequency === 'Monthly' ? 'mo' : c.billingFrequency === 'Yearly' ? 'yr' : 'qtr'}
                     </span>
                   </div>
@@ -130,12 +130,12 @@ export default function CustomerTable({
 
                 {/* Mandate Column */}
                 <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#cbd5e1', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--text-primary)', fontWeight: 500 }}>
                       {getMandateIcon(c.mandateType)}
                       <span>{c.mandateType.replace('_', ' ')}</span>
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                       {c.mandateDetails.bankOrProvider.split(' ')[0]} ({c.mandateDetails.identifier})
                     </div>
                   </div>
@@ -144,13 +144,13 @@ export default function CustomerTable({
                 {/* Failure Reason */}
                 <td>
                   <div style={{ maxWidth: '240px' }}>
-                    <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#fda4af' }}>
+                    <div style={{ fontSize: '12.5px', fontWeight: 600, color: 'var(--status-danger-text)' }}>
                       {c.failureReason.replace(/_/g, ' ')}
                     </div>
                     <div
                       style={{
                         fontSize: '10.5px',
-                        color: 'var(--text-muted)',
+                        color: 'var(--text-secondary)',
                         fontFamily: 'var(--font-mono)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -166,8 +166,8 @@ export default function CustomerTable({
                 {/* Debit Attempts */}
                 <td>
                   <div style={{ fontSize: '12px' }}>
-                    <span style={{ fontWeight: 700, color: '#fff' }}>{c.attemptCount}</span>
-                    <span style={{ color: 'var(--text-muted)' }}> of {c.maxAttempts}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{c.attemptCount}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}> of {c.maxAttempts}</span>
                   </div>
                 </td>
 
@@ -184,18 +184,18 @@ export default function CustomerTable({
                           onClick={() => onStartVoiceCall(c)}
                           title="Call customer with Arya AI voice agent"
                         >
-                          <Mic size={13} />
-                          <span>Call with Arya</span>
+                          <Mic size={12} />
+                          <span>Call Arya</span>
                         </button>
 
                         {isLinkSent ? (
                           <button
                             className="btn btn-sm"
-                            style={{ background: '#10b981', color: '#fff' }}
+                            style={{ background: '#10B981', color: '#fff', fontWeight: 600 }}
                             onClick={() => onOpenCheckout(c)}
                             title="Open Razorpay Checkout link"
                           >
-                            <ExternalLink size={12} />
+                            <ExternalLink size={11} />
                             <span>Pay Link</span>
                           </button>
                         ) : (
@@ -204,12 +204,12 @@ export default function CustomerTable({
                             onClick={() => onQuickSendLink(c)}
                             title="Send WhatsApp payment link"
                           >
-                            <Send size={12} />
+                            <Send size={11} />
                           </button>
                         )}
                       </>
                     ) : (
-                      <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 700 }}>
+                      <span style={{ fontSize: '12px', color: 'var(--status-success-text)', fontWeight: 600 }}>
                         ✓ Paid
                       </span>
                     )}
@@ -220,7 +220,7 @@ export default function CustomerTable({
                       onClick={() => onSelectCustomer(c)}
                       title="Inspect full mandate details"
                     >
-                      <ChevronRight size={15} />
+                      <ChevronRight size={14} />
                     </button>
                   </div>
                 </td>

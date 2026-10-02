@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { CustomerRecord } from '@/types';
-import { PhoneCall, ShieldAlert, CheckCircle2, Key, HelpCircle, X, ExternalLink } from 'lucide-react';
+import { PhoneCall, ShieldAlert, CheckCircle2, Key, X } from 'lucide-react';
 
 interface VapiDialerModalProps {
   customers: CustomerRecord[];
@@ -93,36 +93,39 @@ export default function VapiDialerModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="call-modal" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
+      <div className="call-modal" style={{ maxWidth: '560px' }} onClick={(e) => e.stopPropagation()}>
         <div className="call-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <PhoneCall size={18} style={{ color: 'var(--brand-blue)' }} />
-            <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Vapi Outbound Telephony Engine</h3>
+            <PhoneCall size={16} style={{ color: 'var(--indigo-primary)' }} />
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Vapi Outbound Telephony Engine
+            </h3>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+            className="btn btn-ghost btn-sm"
+            style={{ padding: '6px' }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <div style={{ padding: '24px' }}>
-          {/* Important Permission Banner as required by assignment */}
+        <div style={{ padding: '20px' }}>
+          {/* Compliance Notice */}
           <div
             style={{
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              borderRadius: '8px',
+              background: 'var(--status-warning-bg)',
+              border: '1px solid var(--status-warning-border)',
+              borderRadius: 'var(--radius-sm)',
               padding: '12px 14px',
               display: 'flex',
               alignItems: 'flex-start',
               gap: '10px',
-              marginBottom: '20px',
+              marginBottom: '18px',
             }}
           >
-            <ShieldAlert size={18} style={{ color: '#f59e0b', flexShrink: 0, marginTop: '2px' }} />
-            <div style={{ fontSize: '12px', color: '#fcd34d', lineHeight: '1.4' }}>
+            <ShieldAlert size={16} style={{ color: 'var(--status-warning-text)', flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '12px', color: 'var(--status-warning-text)', lineHeight: '1.45' }}>
               <strong>Compliance Notice:</strong> As instructed in the Razorpay assignment, enter ONLY a phone number you personally control or have explicit verified permission to call.
             </div>
           </div>
@@ -130,7 +133,7 @@ export default function VapiDialerModal({
           <form onSubmit={handleDial} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Phone Number Input */}
             <div>
-              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Your Destination Phone Number (E.164 Format)
               </label>
               <input
@@ -139,44 +142,28 @@ export default function VapiDialerModal({
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 required
-                style={{
-                  width: '100%',
-                  background: 'rgba(12, 23, 44, 0.8)',
-                  border: '1px solid var(--border-medium)',
-                  borderRadius: '8px',
-                  padding: '11px 14px',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                }}
+                className="voice-input-field"
+                style={{ width: '100%', padding: '10px 12px', fontSize: '13.5px' }}
               />
-              <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
-                Example: +91 for India followed by 10-digit number.
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: '4px' }}>
+                Example: +91 for India followed by your 10-digit number.
               </span>
             </div>
 
             {/* Select Customer Scenario */}
             <div>
-              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: '#e2e8f0', marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Select Customer Scenario for Call Context
               </label>
               <select
                 value={chosenCustomerId}
                 onChange={(e) => setChosenCustomerId(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: 'rgba(12, 23, 44, 0.8)',
-                  border: '1px solid var(--border-medium)',
-                  borderRadius: '8px',
-                  padding: '11px 14px',
-                  color: '#fff',
-                  fontSize: '13.5px',
-                  outline: 'none',
-                }}
+                className="voice-input-field"
+                style={{ width: '100%', padding: '10px 12px', fontSize: '13px' }}
               >
                 {customers.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} — {c.merchantName} ({c.planName}) • ₹{c.amount} ({c.failureReason})
+                    {c.name} — {c.merchantName} ({c.planName}) • ₹{c.amount} ({c.failureReason.replace(/_/g, ' ')})
                   </option>
                 ))}
               </select>
@@ -186,12 +173,13 @@ export default function VapiDialerModal({
             {selectedCust && (
               <div
                 style={{
-                  background: 'rgba(51, 149, 255, 0.08)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '8px',
-                  padding: '10px 14px',
+                  background: 'var(--indigo-subtle)',
+                  border: '1px solid var(--indigo-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '10px 12px',
                   fontSize: '12px',
-                  color: '#93c5fd',
+                  color: 'var(--indigo-primary)',
+                  lineHeight: '1.45',
                 }}
               >
                 <strong>Arya's Opening Line:</strong> "Hello {selectedCust.name}! This is Arya calling from Razorpay on behalf of {selectedCust.merchantName} regarding your ₹{selectedCust.amount} recurring charge..."
@@ -206,7 +194,7 @@ export default function VapiDialerModal({
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: 'var(--brand-blue)',
+                  color: 'var(--indigo-primary)',
                   fontSize: '12.5px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -224,9 +212,9 @@ export default function VapiDialerModal({
             {showKeyConfig && (
               <div
                 style={{
-                  background: 'rgba(8, 15, 30, 0.8)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '8px',
+                  background: '#F8F9FB',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-sm)',
                   padding: '14px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -234,7 +222,7 @@ export default function VapiDialerModal({
                 }}
               >
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 500 }}>
                     VAPI_API_KEY (from dashboard.vapi.ai)
                   </label>
                   <input
@@ -242,20 +230,13 @@ export default function VapiDialerModal({
                     placeholder="e.g. 5d89f2a4-xxxx-xxxx"
                     value={vapiApiKey}
                     onChange={(e) => setVapiApiKey(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(12, 23, 44, 0.9)',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: '6px',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '12.5px',
-                    }}
+                    className="voice-input-field"
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '12px' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 500 }}>
                     VAPI_PHONE_NUMBER_ID (Purchased or imported in Vapi)
                   </label>
                   <input
@@ -263,41 +244,27 @@ export default function VapiDialerModal({
                     placeholder="e.g. 3cb89a1-xxxx-xxxx"
                     value={vapiPhoneId}
                     onChange={(e) => setVapiPhoneId(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(12, 23, 44, 0.9)',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: '6px',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '12.5px',
-                    }}
+                    className="voice-input-field"
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '12px' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>
-                    VAPI_ASSISTANT_ID (Optional: if blank, inline assistant configuration is used)
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 500 }}>
+                    VAPI_ASSISTANT_ID (Optional: if blank, inline configuration is used)
                   </label>
                   <input
                     type="text"
                     placeholder="Optional assistant ID"
                     value={vapiAssistantId}
                     onChange={(e) => setVapiAssistantId(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(12, 23, 44, 0.9)',
-                      border: '1px solid var(--border-subtle)',
-                      borderRadius: '6px',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '12.5px',
-                    }}
+                    className="voice-input-field"
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '12px' }}
                   />
                 </div>
 
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                  Tip: You can also specify these in your <code style={{ color: '#38bdf8' }}>.env.local</code> file!
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  Tip: You can also specify these in your <code style={{ color: 'var(--indigo-primary)', background: '#EEF2F6', padding: '1px 4px', borderRadius: '3px' }}>.env.local</code> file!
                 </div>
               </div>
             )}
@@ -305,11 +272,11 @@ export default function VapiDialerModal({
             {errorMsg && (
               <div
                 style={{
-                  background: 'rgba(244, 63, 94, 0.12)',
-                  border: '1px solid rgba(244, 63, 94, 0.3)',
-                  borderRadius: '6px',
+                  background: 'var(--status-danger-bg)',
+                  border: '1px solid var(--status-danger-border)',
+                  borderRadius: 'var(--radius-sm)',
                   padding: '10px 12px',
-                  color: '#fda4af',
+                  color: 'var(--status-danger-text)',
                   fontSize: '12.5px',
                 }}
               >
@@ -320,21 +287,21 @@ export default function VapiDialerModal({
             {callResponse && (
               <div
                 style={{
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.35)',
-                  borderRadius: '8px',
+                  background: 'var(--status-success-bg)',
+                  border: '1px solid var(--status-success-border)',
+                  borderRadius: 'var(--radius-sm)',
                   padding: '12px 14px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#6ee7b7', fontWeight: 700, fontSize: '13px', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--status-success-text)', fontWeight: 700, fontSize: '13px', marginBottom: '4px' }}>
                   <CheckCircle2 size={16} />
                   <span>Call Dispatch Request Accepted!</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: '1.4' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-primary)', lineHeight: '1.4' }}>
                   {callResponse.message}
                 </div>
                 {callResponse.callId && (
-                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', fontFamily: 'var(--font-mono)' }}>
                     Call ID: {callResponse.callId} • Status: {callResponse.status}
                   </div>
                 )}
@@ -345,13 +312,13 @@ export default function VapiDialerModal({
               type="submit"
               className="btn btn-primary"
               disabled={isLoading}
-              style={{ width: '100%', justifyContent: 'center', padding: '12px', marginTop: '4px' }}
+              style={{ width: '100%', justifyContent: 'center', padding: '11px', marginTop: '4px' }}
             >
               {isLoading ? (
                 'Connecting to Vapi Telephony...'
               ) : (
                 <>
-                  <PhoneCall size={16} />
+                  <PhoneCall size={15} />
                   <span>Initiate Outbound Call</span>
                 </>
               )}

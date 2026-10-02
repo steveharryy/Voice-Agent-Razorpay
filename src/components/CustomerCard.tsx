@@ -40,31 +40,31 @@ export default function CustomerCard({
       case 'RECOVERED':
         return (
           <span className="badge badge-recovered">
-            <CheckCircle2 size={12} /> Recovered
+            <CheckCircle2 size={11} /> Recovered
           </span>
         );
       case 'CALLING':
         return (
           <span className="badge badge-calling">
-            <PhoneCall size={12} /> Calling...
+            <PhoneCall size={11} /> In Call
           </span>
         );
       case 'PAYMENT_LINK_SENT':
         return (
           <span className="badge badge-link">
-            <Send size={12} /> Link Sent
+            <Send size={11} /> Link Sent
           </span>
         );
       case 'RETRY_SCHEDULED':
         return (
           <span className="badge badge-retry">
-            <Calendar size={12} /> Retry Scheduled
+            <Calendar size={11} /> Retry Set
           </span>
         );
       default:
         return (
           <span className="badge badge-failed">
-            <AlertTriangle size={12} /> Failed
+            <AlertTriangle size={11} /> Failed
           </span>
         );
     }
@@ -73,11 +73,11 @@ export default function CustomerCard({
   const getMandateIcon = () => {
     switch (customer.mandateType) {
       case 'UPI_AUTOPAY':
-        return <QrCode size={13} style={{ color: '#00e5ff' }} />;
+        return <QrCode size={13} style={{ color: 'var(--status-info-text)' }} />;
       case 'E_NACH':
-        return <Building2 size={13} style={{ color: '#38bdf8' }} />;
+        return <Building2 size={13} style={{ color: 'var(--status-info-text)' }} />;
       default:
-        return <CreditCard size={13} style={{ color: '#818cf8' }} />;
+        return <CreditCard size={13} style={{ color: 'var(--indigo-primary)' }} />;
     }
   };
 
@@ -107,14 +107,14 @@ export default function CustomerCard({
           <span className="sub-detail-label">Amount Overdue</span>
           <span className="sub-detail-val amount-highlight">
             ₹{customer.amount.toLocaleString('en-IN')}
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               /{customer.billingFrequency === 'Monthly' ? 'mo' : customer.billingFrequency === 'Yearly' ? 'yr' : 'qtr'}
             </span>
           </span>
         </div>
 
         <div className="sub-detail-item">
-          <span className="sub-detail-label">Mandate Type</span>
+          <span className="sub-detail-label">Mandate Rail</span>
           <span className="sub-detail-val">
             {getMandateIcon()}
             <span style={{ fontSize: '12px' }}>
@@ -133,7 +133,7 @@ export default function CustomerCard({
         <div className="sub-detail-item">
           <span className="sub-detail-label">Attempts</span>
           <span className="sub-detail-val" style={{ fontSize: '12px' }}>
-            <Clock size={12} style={{ color: 'var(--text-muted)' }} />
+            <Clock size={12} style={{ color: 'var(--text-secondary)' }} />
             {customer.attemptCount} of {customer.maxAttempts} debits
           </span>
         </div>
@@ -143,16 +143,16 @@ export default function CustomerCard({
         <div className="failure-title">
           <AlertTriangle size={13} />
           <span>{customer.failureReason.replace(/_/g, ' ')}</span>
-          <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+          <span style={{ fontSize: '10.5px', color: 'var(--text-secondary)', marginLeft: 'auto' }}>
             {customer.failedAt}
           </span>
         </div>
         <div className="failure-desc">{customer.failureDescription}</div>
         <div
           style={{
-            fontSize: '10px',
-            color: '#94a3b8',
-            fontFamily: 'monospace',
+            fontSize: '10.5px',
+            color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-mono)',
             marginTop: '4px',
           }}
         >
@@ -163,12 +163,12 @@ export default function CustomerCard({
       {isRetryScheduled && customer.scheduledRetryDate && (
         <div
           style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: '6px',
+            background: 'var(--status-warning-bg)',
+            border: '1px solid var(--status-warning-border)',
+            borderRadius: 'var(--radius-sm)',
             padding: '8px 12px',
             fontSize: '12px',
-            color: '#fcd34d',
+            color: 'var(--status-warning-text)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
@@ -182,12 +182,12 @@ export default function CustomerCard({
       {isRecovered && (
         <div
           style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '6px',
+            background: 'var(--status-success-bg)',
+            border: '1px solid var(--status-success-border)',
+            borderRadius: 'var(--radius-sm)',
             padding: '8px 12px',
             fontSize: '12px',
-            color: '#6ee7b7',
+            color: 'var(--status-success-text)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
@@ -195,7 +195,7 @@ export default function CustomerCard({
         >
           <CheckCircle2 size={14} />
           <span>
-            Payment of ₹{customer.amount} recovered successfully! Mandate in good standing.
+            Payment of ₹{customer.amount} recovered successfully! Mandate active.
           </span>
         </div>
       )}
@@ -208,8 +208,8 @@ export default function CustomerCard({
               onClick={() => onStartVoiceCall(customer)}
               title="Test interactive voice recovery directly in your browser with mic"
             >
-              <Mic size={14} />
-              <span>Voice Agent (Mic)</span>
+              <Mic size={13} />
+              <span>Voice (Mic)</span>
             </button>
 
             <button
@@ -217,7 +217,7 @@ export default function CustomerCard({
               onClick={() => onCallViaVapi(customer)}
               title="Place a real phone call to your verified number using Vapi API"
             >
-              <PhoneCall size={13} />
+              <PhoneCall size={12} />
               <span>Vapi Dial</span>
             </button>
 
@@ -225,15 +225,16 @@ export default function CustomerCard({
               <button
                 className="btn btn-sm"
                 style={{
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  background: '#10B981',
                   color: '#fff',
                   marginLeft: 'auto',
+                  fontWeight: 600,
                 }}
                 onClick={() => onOpenCheckout(customer)}
                 title="Open simulated Razorpay Payment Link Checkout"
               >
-                <ExternalLink size={13} />
-                <span>Open Checkout</span>
+                <ExternalLink size={12} />
+                <span>Pay Link</span>
               </button>
             ) : (
               <button
@@ -242,7 +243,7 @@ export default function CustomerCard({
                 onClick={() => onQuickSendLink(customer)}
                 title="Send instant Razorpay payment link directly"
               >
-                <Send size={13} />
+                <Send size={12} />
                 <span>Send Link</span>
               </button>
             )}

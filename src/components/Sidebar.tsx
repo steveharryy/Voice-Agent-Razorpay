@@ -9,10 +9,10 @@ import {
   Layers,
   Volume2,
   RotateCcw,
-  ShieldCheck,
   Headphones,
   Sliders,
   X,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -38,14 +38,13 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <>
-      {/* Mobile backdrop */}
       {isOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            backdropFilter: 'blur(4px)',
+            background: 'rgba(15, 23, 42, 0.25)',
+            backdropFilter: 'blur(2px)',
             zIndex: 99,
           }}
           onClick={onClose}
@@ -53,20 +52,19 @@ export default function Sidebar({
       )}
 
       <aside className={`app-sidebar ${isOpen ? 'open' : ''}`}>
-        {/* Brand Logo */}
-        <div className="sidebar-logo">
-          <div className="logo-symbol">
-            <Sparkles size={20} />
+        {/* Brand */}
+        <div className="sidebar-brand">
+          <div className="brand-icon">
+            <Sparkles size={18} />
           </div>
-          <div className="logo-text-wrap">
-            <div className="logo-title">
-              <span>Call</span>
-              <span className="violet-text">AI</span>
-              <span style={{ fontSize: '10px', color: '#06b6d4', marginLeft: '4px', fontWeight: 600 }}>
-                x Razorpay
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="brand-title">
+              <span>CallAI</span>
+              <span style={{ fontSize: '10px', color: 'var(--indigo-primary)', background: 'var(--indigo-subtle)', padding: '1px 6px', borderRadius: '4px' }}>
+                Razorpay
               </span>
             </div>
-            <div className="logo-subtitle">Autopay Recovery Agent</div>
+            <div className="brand-subtitle">Autopay Recovery Engine</div>
           </div>
           {isOpen && (
             <button
@@ -84,9 +82,9 @@ export default function Sidebar({
           )}
         </div>
 
-        {/* Navigation Sections */}
+        {/* Navigation */}
         <nav className="sidebar-nav">
-          <div className="nav-section-title">Core Operations</div>
+          <div className="sidebar-nav-title">Operations</div>
 
           <div
             className={`sidebar-nav-item ${activeTab === 'QUEUE' ? 'active' : ''}`}
@@ -95,11 +93,11 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <LayoutDashboard size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <LayoutDashboard size={15} />
               <span>Recovery Queue</span>
             </div>
-            <span className="nav-pill-badge">{customerCount}</span>
+            <span className="nav-counter">{customerCount}</span>
           </div>
 
           <div
@@ -109,12 +107,12 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <Headphones size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <Headphones size={15} />
               <span>Voice Agents</span>
             </div>
-            <span className="nav-pill-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
-              1 Active
+            <span className="nav-counter" style={{ background: '#ECFDF5', color: '#059669' }}>
+              Active
             </span>
           </div>
 
@@ -125,8 +123,8 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <BarChart3 size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <BarChart3 size={15} />
               <span>Recovery Analytics</span>
             </div>
           </div>
@@ -138,14 +136,14 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <Layers size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <Layers size={15} />
               <span>FDE Blueprint</span>
             </div>
           </div>
 
-          <div className="nav-section-title" style={{ marginTop: '16px' }}>
-            Telephony &amp; Tools
+          <div className="sidebar-nav-title" style={{ marginTop: '16px' }}>
+            Settings &amp; Tools
           </div>
 
           <div
@@ -155,8 +153,8 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <PhoneCall size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <PhoneCall size={15} />
               <span>Vapi Telephony</span>
             </div>
           </div>
@@ -168,8 +166,8 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <Volume2 size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <Volume2 size={15} />
               <span>Voice Settings</span>
             </div>
           </div>
@@ -181,46 +179,46 @@ export default function Sidebar({
               onClose();
             }}
           >
-            <div className="nav-item-left">
-              <RotateCcw size={16} className="nav-icon" />
+            <div className="nav-item-content">
+              <RotateCcw size={15} />
               <span>Reset Data</span>
             </div>
           </div>
         </nav>
 
-        {/* Sidebar Footer */}
+        {/* Footer */}
         <div className="sidebar-footer">
-          <div className="voice-status-box">
-            <div className="voice-status-header">
-              <span>Voice Engine Active</span>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+          <div className="sidebar-status-box">
+            <div className="sidebar-status-header">
+              <span>Voice Engine</span>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
             </div>
-            <div className="voice-status-text">
-              Strict English (US) • GPT-4o-mini &amp; Nova-2 ASR
+            <div className="sidebar-status-desc">
+              Strict English (US) • &lt;520ms
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 4px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '28px',
+                height: '28px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
-                border: '1px solid var(--border-medium)',
+                background: 'var(--indigo-subtle)',
+                border: '1px solid var(--indigo-border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
-                fontSize: '12px',
+                color: 'var(--indigo-primary)',
+                fontSize: '11px',
                 fontWeight: 700,
               }}
             >
               FD
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#fff' }}>Razorpay FDE</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Forward Deployed</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>Razorpay FDE</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Production Mode</div>
             </div>
           </div>
         </div>
