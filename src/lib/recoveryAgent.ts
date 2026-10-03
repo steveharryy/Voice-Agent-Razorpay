@@ -19,7 +19,91 @@ export function processCustomerInput(
 ): AgentResponse {
   const text = userInput.toLowerCase().trim();
 
-  // 1. Identity confirmation
+  // --------------------------------------------------------------------------
+  // Check for negations, pranks, jokes ("i fooled you", "didn't pay", "haven't paid")
+  // --------------------------------------------------------------------------
+  const hasNegation =
+    text.includes("didn't") ||
+    text.includes("did not") ||
+    text.includes("haven't") ||
+    text.includes("have not") ||
+    text.includes("not paid") ||
+    text.includes("never paid") ||
+    text.includes("fooled") ||
+    text.includes("kidding") ||
+    text.includes("lied") ||
+    text.includes("prank") ||
+    text.includes("fake");
+
+  if (hasNegation) {
+    return {
+      replyText: `Haha, good one ${customer.name}! I appreciate your sense of humor. On a serious note, the ₹${customer.amount} autopay payment for ${customer.merchantName} (${customer.planName}) is genuinely still pending failure on our gateway. I can send you a 1-click Razorpay payment link right now on WhatsApp or SMS so you can clear it in 30 seconds via UPI. Would you like me to do that?`,
+      nextSuggestedReplies: [
+        'Yes, send the WhatsApp link',
+        'Can you retry tomorrow morning?',
+        'Why did my bank decline it?',
+      ],
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // Claim of prior payment ("already paid", "paid already", "money was deducted")
+  // --------------------------------------------------------------------------
+  const claimsAlreadyPaid =
+    text.includes('already paid') ||
+    text.includes('paid already') ||
+    text.includes('paid it already') ||
+    text.includes('already done') ||
+    text.includes('already settled') ||
+    text.includes('money was deducted') ||
+    text.includes('money got deducted') ||
+    text.includes('amount was deducted') ||
+    text.includes('amount got deducted') ||
+    text.includes('money debited') ||
+    text.includes('amount debited') ||
+    text.includes('debited from my') ||
+    text.includes('cut from my') ||
+    text.includes('already charged') ||
+    (text.includes('paid') && (text.includes('already') || text.includes('before') || text.includes('earlier') || text.includes('yesterday') || text.includes('morning')));
+
+  if (claimsAlreadyPaid) {
+    return {
+      replyText: `I completely understand, ${customer.name}. If funds were debited from your account, it often happens when the bank (${customer.mandateDetails.bankOrProvider}) initiates the charge but encounters a network timeout before confirming the settlement. In such cases, your bank will automatically reverse the full amount back to your account within 24 to 48 business hours. However, on our live merchant ledger, your ${customer.planName} subscription is currently marked as failed. Would you like me to send a 1-click payment link to prevent service interruption, or schedule a retry for tomorrow once your statement reconciles?`,
+      nextSuggestedReplies: [
+        'Send me the WhatsApp payment link',
+        'Schedule a retry for tomorrow',
+        'Why did my payment fail?',
+        'Check my mandate details',
+      ],
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // In-Call Payment Completed Affirmation (Customer just paid the link now)
+  // --------------------------------------------------------------------------
+  const justPaidLink =
+    text.includes('paid the link') ||
+    text.includes('paid via link') ||
+    text.includes('just paid') ||
+    text.includes('completed the payment') ||
+    text.includes('done with payment') ||
+    text.includes('payment is done') ||
+    text.includes('done paying') ||
+    text.includes('i have paid now') ||
+    text.includes('payment completed') ||
+    text.includes('transferred via upi');
+
+  if (justPaidLink) {
+    return {
+      replyText: `Fantastic! Our webhook has received and verified your payment of ₹${customer.amount}. Your ${customer.merchantName} subscription is active and in good standing. Thank you for choosing Razorpay. Have a wonderful day!`,
+      nextSuggestedReplies: ['Thank you Arya!', 'Have a great day!'],
+      isCallCompleted: true,
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // Identity confirmation (initial greeting response)
+  // --------------------------------------------------------------------------
   if (
     history.filter((h) => h.sender === 'customer').length <= 1 &&
     (text.includes('yes') ||
@@ -36,19 +120,22 @@ export function processCustomerInput(
       nextSuggestedReplies: [
         'Send me the WhatsApp payment link',
         'Can you retry tomorrow morning?',
-        'I added funds, retry now',
         'Why did my bank decline it?',
+        'I added funds, retry now',
       ],
     };
   }
 
-  // 2. Reason for failure query
+  // --------------------------------------------------------------------------
+  // Reason for failure query
+  // --------------------------------------------------------------------------
   if (
     text.includes('why') ||
     text.includes('reason') ||
     text.includes('what happened') ||
     text.includes('explain') ||
-    text.includes('error')
+    text.includes('error') ||
+    text.includes('decline')
   ) {
     const detailedExplanation = getDetailedFailureReason(customer);
     return {
@@ -61,14 +148,18 @@ export function processCustomerInput(
     };
   }
 
-  // 3. Security / Safety Query
+  // --------------------------------------------------------------------------
+  // Security / Trust / Scam Verification
+  // --------------------------------------------------------------------------
   if (
     text.includes('safe') ||
     text.includes('scam') ||
     text.includes('fraud') ||
     text.includes('otp') ||
     text.includes('pin') ||
-    text.includes('security')
+    text.includes('security') ||
+    text.includes('trust') ||
+    text.includes('genuine')
   ) {
     return {
       replyText: `I completely understand your vigilance! Razorpay adheres to RBI guidelines and PCI-DSS Level 1 security. I will NEVER ask for your UPI PIN, OTP, CVV, or passwords over this call. The payment link will be sent directly from official Razorpay verified handles and opens a secure 256-bit encrypted checkout. Shall I send it to your WhatsApp now?`,
@@ -80,13 +171,16 @@ export function processCustomerInput(
     };
   }
 
-  // 4. Request for payment link
+  // --------------------------------------------------------------------------
+  // Request for payment link
+  // --------------------------------------------------------------------------
   if (
     text.includes('send') ||
     text.includes('link') ||
     text.includes('whatsapp') ||
     text.includes('sms') ||
     text.includes('pay now') ||
+    text.includes('pay link') ||
     text.includes('upi') ||
     text.includes('qr') ||
     text.includes('gpay') ||
@@ -113,7 +207,9 @@ export function processCustomerInput(
     };
   }
 
-  // 5. Schedule retry
+  // --------------------------------------------------------------------------
+  // Schedule retry
+  // --------------------------------------------------------------------------
   if (
     text.includes('tomorrow') ||
     text.includes('later') ||
@@ -139,13 +235,17 @@ export function processCustomerInput(
     };
   }
 
-  // 6. Retry immediately (customer added funds)
+  // --------------------------------------------------------------------------
+  // Immediate retry (customer explicitly added funds/money)
+  // --------------------------------------------------------------------------
   if (
-    text.includes('added') ||
+    text.includes('added funds') ||
+    text.includes('added money') ||
     text.includes('topped up') ||
-    text.includes('now') ||
-    text.includes('balance available') ||
-    text.includes('try now')
+    text.includes('balance is available') ||
+    text.includes('funds available') ||
+    text.includes('try again now') ||
+    text.includes('retry now')
   ) {
     return {
       replyText: `Excellent! Since you have topped up your account balance, I am initiating an immediate re-attempt via Razorpay Smart-Switch routing to ${customer.mandateDetails.bankOrProvider}. Please look out for the notification from your bank.`,
@@ -161,13 +261,15 @@ export function processCustomerInput(
     };
   }
 
-  // 7. Mandate update / Card expired
+  // --------------------------------------------------------------------------
+  // Mandate update / Card expired
+  // --------------------------------------------------------------------------
   if (
     text.includes('expired') ||
-    text.includes('change') ||
     text.includes('new card') ||
-    text.includes('switch') ||
-    text.includes('mandate')
+    text.includes('switch card') ||
+    text.includes('update mandate') ||
+    text.includes('change bank')
   ) {
     return {
       replyText: `I can help you update your mandate immediately. I am sending a secure 1-click Mandate Update link to ${customer.phone}. You can authorize a fresh UPI Autopay mandate or add your new card in under 60 seconds with zero paperwork.`,
@@ -183,7 +285,9 @@ export function processCustomerInput(
     };
   }
 
-  // 8. Cancellation or Dispute
+  // --------------------------------------------------------------------------
+  // Cancellation or Dispute
+  // --------------------------------------------------------------------------
   if (
     text.includes('cancel') ||
     text.includes('stop') ||
@@ -207,27 +311,15 @@ export function processCustomerInput(
     };
   }
 
-  // 9. Payment completed affirmation
-  if (
-    text.includes('paid') ||
-    text.includes('done') ||
-    text.includes('completed') ||
-    text.includes('received')
-  ) {
-    return {
-      replyText: `Fantastic! Our webhook has received and verified your payment. Your ${customer.merchantName} subscription is active and in good standing. Thank you for choosing Razorpay. Have a great day!`,
-      nextSuggestedReplies: ['Bye Arya', 'Thank you!'],
-      isCallCompleted: true,
-    };
-  }
-
-  // 10. Default fallback / Conversational wrap-up
+  // --------------------------------------------------------------------------
+  // Default fallback / Conversational wrap-up
+  // --------------------------------------------------------------------------
   return {
     replyText: `I understand, ${customer.name}. To ensure your ${customer.merchantName} access continues without interruption, would you like me to send a WhatsApp payment link for ₹${customer.amount}, or would you prefer I schedule a retry for tomorrow?`,
     nextSuggestedReplies: [
       'Send me the WhatsApp payment link',
       'Schedule retry for tomorrow',
-      'I will pay online later',
+      'Why did it fail?',
     ],
   };
 }
