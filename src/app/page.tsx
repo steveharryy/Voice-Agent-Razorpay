@@ -3,21 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
-import StatsCards from '@/components/StatsCards';
-import AgentShowcaseCard from '@/components/AgentShowcaseCard';
-import CustomerTable from '@/components/CustomerTable';
-import CustomerCard from '@/components/CustomerCard';
-import CustomerDrawer from '@/components/CustomerDrawer';
-import VoiceAgentsView from '@/components/VoiceAgentsView';
-import AnalyticsView from '@/components/AnalyticsView';
-import VoiceCallModal from '@/components/VoiceCallModal';
-import RazorpayCheckoutModal from '@/components/RazorpayCheckoutModal';
-import VapiDialerModal from '@/components/VapiDialerModal';
-import ArchitectureModal from '@/components/ArchitectureModal';
-import VoiceSettingsModal from '@/components/VoiceSettingsModal';
+import Stats from '@/components/Stats';
+import { AgentShowcaseCard, VoiceAgentsView } from '@/components/Agents';
+import { CustomerTable, CustomerCard } from '@/components/Customers';
+import Drawer from '@/components/Drawer';
+import Analytics from '@/components/Analytics';
+import Simulator from '@/components/Simulator';
+import Checkout from '@/components/Checkout';
+import Dialer from '@/components/Dialer';
+import Architecture from '@/components/Architecture';
+import { VoiceSettingsModal } from '@/components/Settings';
 import { CustomerRecord } from '@/types';
-import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
-import { LayoutList, LayoutGrid, Layers, Zap, Server } from 'lucide-react';
+import { INITIAL_CUSTOMERS } from '@/data/customers';
+import { LayoutList, LayoutGrid, Layers, Server } from 'lucide-react';
 
 export default function Home() {
   const [customers, setCustomers] = useState<CustomerRecord[]>(INITIAL_CUSTOMERS);
@@ -27,10 +25,8 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'TABLE' | 'GRID'>('TABLE');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Inspection Drawer
   const [inspectedCustomer, setInspectedCustomer] = useState<CustomerRecord | null>(null);
 
-  // Modals
   const [activeVoiceCallCustomer, setActiveVoiceCallCustomer] = useState<CustomerRecord | null>(null);
   const [activeCheckoutCustomer, setActiveCheckoutCustomer] = useState<CustomerRecord | null>(null);
   const [activeVapiCustomer, setActiveVapiCustomer] = useState<CustomerRecord | null>(null);
@@ -38,7 +34,6 @@ export default function Home() {
   const [isArchitectureModalOpen, setIsArchitectureModalOpen] = useState(false);
   const [isVoiceSettingsOpen, setIsVoiceSettingsOpen] = useState(false);
 
-  // Fetch initial customer state from API if available
   useEffect(() => {
     fetch('/api/customers')
       .then((res) => res.json())
@@ -50,7 +45,6 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  // Update a single customer record
   const updateCustomer = async (updated: CustomerRecord) => {
     setCustomers((prev) =>
       prev.map((c) => (c.id === updated.id ? updated : c))
@@ -69,7 +63,6 @@ export default function Home() {
     } catch {}
   };
 
-  // Quick send payment link
   const handleQuickSendLink = (customer: CustomerRecord) => {
     const linkId = `plink_${Math.random().toString(36).substring(2, 9)}`;
     const updated: CustomerRecord = {
@@ -81,7 +74,6 @@ export default function Home() {
     updateCustomer(updated);
   };
 
-  // Payment completed callback from Razorpay Checkout Modal
   const handlePaymentSuccess = (customer: CustomerRecord, paymentDetails: any) => {
     const updated: CustomerRecord = {
       ...customer,
@@ -93,7 +85,6 @@ export default function Home() {
     updateCustomer(updated);
   };
 
-  // Reset demo data to fresh initial state
   const handleResetData = async () => {
     try {
       const res = await fetch('/api/customers', {
@@ -112,7 +103,6 @@ export default function Home() {
     }
   };
 
-  // Filter customers by search and status
   const filteredCustomers = customers.filter((c) => {
     const matchesSearch =
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -133,7 +123,6 @@ export default function Home() {
 
   return (
     <div className="dashboard-layout">
-      {/* CallAI Responsive Left Sidebar */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -148,9 +137,7 @@ export default function Home() {
         customerCount={customers.length}
       />
 
-      {/* Main Viewport */}
       <div className="main-viewport">
-        {/* Top Header Bar */}
         <Header
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           searchTerm={searchTerm}
@@ -164,11 +151,9 @@ export default function Home() {
           onResetData={handleResetData}
         />
 
-        {/* Dashboard Content */}
         <div className="dashboard-content">
           {activeTab === 'QUEUE' && (
             <>
-              {/* Hero Voice Agent Showcase Card */}
               <AgentShowcaseCard
                 sampleCustomer={customers[0]}
                 onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
@@ -179,10 +164,8 @@ export default function Home() {
                 }}
               />
 
-              {/* CallAI Metric KPI Cards Grid */}
-              <StatsCards customers={customers} />
+              <Stats customers={customers} />
 
-              {/* Filter Toolbar */}
               <div className="toolbar-wrap">
                 <div className="filter-group">
                   <button
@@ -235,7 +218,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Operations Table or Card Grid */}
               {viewMode === 'TABLE' ? (
                 <CustomerTable
                   customers={filteredCustomers}
@@ -280,7 +262,7 @@ export default function Home() {
           )}
 
           {activeTab === 'ANALYTICS' && (
-            <AnalyticsView customers={customers} />
+            <Analytics customers={customers} />
           )}
 
           {activeTab === 'ARCHITECTURE' && (
@@ -374,9 +356,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Slide-over Inspection Drawer */}
       {inspectedCustomer && (
-        <CustomerDrawer
+        <Drawer
           customer={inspectedCustomer}
           onClose={() => setInspectedCustomer(null)}
           onStartVoiceCall={(c) => setActiveVoiceCallCustomer(c)}
@@ -385,9 +366,8 @@ export default function Home() {
         />
       )}
 
-      {/* Interactive Softphone Voice Call Modal */}
       {activeVoiceCallCustomer && (
-        <VoiceCallModal
+        <Simulator
           customer={activeVoiceCallCustomer}
           onClose={() => setActiveVoiceCallCustomer(null)}
           onCustomerUpdate={(updated) => {
@@ -401,23 +381,20 @@ export default function Home() {
         />
       )}
 
-      {/* Voice Configuration & Test Modal */}
       {isVoiceSettingsOpen && (
         <VoiceSettingsModal onClose={() => setIsVoiceSettingsOpen(false)} />
       )}
 
-      {/* Simulated Razorpay Checkout Modal */}
       {activeCheckoutCustomer && (
-        <RazorpayCheckoutModal
+        <Checkout
           customer={activeCheckoutCustomer}
           onClose={() => setActiveCheckoutCustomer(null)}
           onPaymentSuccess={handlePaymentSuccess}
         />
       )}
 
-      {/* Vapi Outbound Phone Caller Modal */}
       {isVapiDialerOpen && (
-        <VapiDialerModal
+        <Dialer
           customers={customers}
           selectedCustomer={activeVapiCustomer}
           onClose={() => setIsVapiDialerOpen(false)}
@@ -433,9 +410,8 @@ export default function Home() {
         />
       )}
 
-      {/* Architecture & FDE System Design Blueprint Modal */}
       {isArchitectureModalOpen && (
-        <ArchitectureModal onClose={() => setIsArchitectureModalOpen(false)} />
+        <Architecture onClose={() => setIsArchitectureModalOpen(false)} />
       )}
     </div>
   );

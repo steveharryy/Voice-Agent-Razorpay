@@ -1,15 +1,5 @@
-/* ==========================================================================
-   Linear & Stripe-Grade Light Mode SaaS Design System
-   Exact Spec:
-   - Pure white & soft off-white backgrounds (#FFFFFF, #F8F9FB)
-   - Primary text in deep charcoal (#17191F), secondary text in muted gray (#64748B)
-   - Restrained indigo/violet accent (#635BFF)
-   - Subtle neutral borders (#E9EBF0), soft shadows, rounded corners 10–14px (12px)
-   - Inter typography, generous whitespace, precise alignment
-   ========================================================================== */
-
 :root {
-  /* Surfaces */
+  
   --bg-app: #F8F9FB;
   --bg-surface: #FFFFFF;
   --bg-sidebar: #FFFFFF;
@@ -17,18 +7,15 @@
   --bg-hover: #F6F8FA;
   --bg-active: #EEF2F6;
 
-  /* Neutral Borders */
   --border-color: #E9EBF0;
   --border-focus: #635BFF;
   --border-subtle: #F0F2F5;
 
-  /* Iconic Restrained Indigo Accent (Stripe / Linear) */
   --indigo-primary: #635BFF;
   --indigo-hover: #534AE8;
   --indigo-subtle: #F4F3FF;
   --indigo-border: #E0DEFF;
 
-  /* Semantic Statuses (Subtle & Restrained) */
   --status-success-bg: #ECFDF5;
   --status-success-border: #D1FAE5;
   --status-success-text: #059669;
@@ -45,13 +32,11 @@
   --status-info-border: #E0F2FE;
   --status-info-text: #0284C7;
 
-  /* Typography */
   --text-primary: #17191F;
   --text-secondary: #64748B;
   --text-tertiary: #94A3B8;
   --text-white: #FFFFFF;
 
-  /* Elevation & Shadows */
   --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.06), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
@@ -59,7 +44,6 @@
   --shadow-modal: 0 20px 40px -8px rgba(16, 24, 40, 0.16), 0 0 0 1px #E9EBF0;
   --shadow-drawer: -10px 0 30px rgba(16, 24, 40, 0.08);
 
-  /* Radius (10-14px) */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 14px;
@@ -84,7 +68,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -100,16 +83,12 @@ body {
   background: #94A3B8;
 }
 
-/* --------------------------------------------------------------------------
-   App Layout (Sidebar + Main Content Area)
-   -------------------------------------------------------------------------- */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-app);
 }
 
-/* Left Sidebar */
 .app-sidebar {
   width: 250px;
   background: var(--bg-sidebar);
@@ -165,7 +144,6 @@ body {
   font-weight: 500;
 }
 
-/* Sidebar Nav Items */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -227,7 +205,6 @@ body {
   color: var(--indigo-primary);
 }
 
-/* Sidebar Footer */
 .sidebar-footer {
   padding-top: 14px;
   border-top: 1px solid var(--border-color);
@@ -259,9 +236,6 @@ body {
   font-weight: 500;
 }
 
-/* --------------------------------------------------------------------------
-   Main Viewport
-   -------------------------------------------------------------------------- */
 .main-viewport {
   flex: 1;
   display: flex;
@@ -271,7 +245,6 @@ body {
   background: var(--bg-app);
 }
 
-/* Top App Header */
 .top-header {
   padding: 14px 32px;
   background: var(--bg-surface);
@@ -324,7 +297,6 @@ body {
   gap: 8px;
 }
 
-/* Buttons - Polished Linear/Stripe Styles */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -376,7 +348,6 @@ body {
   font-size: 12px;
 }
 
-/* Main Dashboard Body */
 .dashboard-body {
   padding: 28px 32px 60px;
   display: flex;
@@ -384,9 +355,6 @@ body {
   gap: 24px;
 }
 
-/* --------------------------------------------------------------------------
-   Live Voice Assistant Banner (Minimal Stripe/Linear Spec)
-   -------------------------------------------------------------------------- */
 .voice-agent-banner {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -481,9 +449,6 @@ body {
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------------
-   Metric Cards Grid (Clean White Cards)
-   -------------------------------------------------------------------------- */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -549,9 +514,6 @@ body {
   transition: width 0.3s ease;
 }
 
-/* --------------------------------------------------------------------------
-   Toolbar & Filters
-   -------------------------------------------------------------------------- */
 .toolbar-container {
   display: flex;
   align-items: center;
@@ -617,9 +579,6 @@ body {
   color: var(--text-primary);
 }
 
-/* --------------------------------------------------------------------------
-   Data Table (Pure White Stripe/Linear Style)
-   -------------------------------------------------------------------------- */
 .table-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -671,7 +630,6 @@ body {
   background-color: var(--indigo-subtle);
 }
 
-/* Customer Item */
 .table-customer {
   display: flex;
   align-items: center;
@@ -704,7 +662,6 @@ body {
   color: var(--text-secondary);
 }
 
-/* Status Badges - Restrained Light Style */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -747,9 +704,6 @@ body {
   border: 1px solid var(--status-warning-border);
 }
 
-/* --------------------------------------------------------------------------
-   Inspection Drawer (Slide-Over Panel)
-   -------------------------------------------------------------------------- */
 .drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -831,9 +785,6 @@ body {
   font-weight: 600;
 }
 
-/* --------------------------------------------------------------------------
-   Softphone Call Console Modal
-   -------------------------------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -993,9 +944,6 @@ body {
   box-shadow: 0 0 0 2px rgba(99, 91, 255, 0.1);
 }
 
-/* --------------------------------------------------------------------------
-   Simulated Razorpay Checkout Modal (Clean White Modal)
-   -------------------------------------------------------------------------- */
 .checkout-modal {
   width: 100%;
   max-width: 440px;
@@ -1065,9 +1013,6 @@ body {
   background: var(--indigo-hover);
 }
 
-/* --------------------------------------------------------------------------
-   Blueprint Card
-   -------------------------------------------------------------------------- */
 .blueprint-card {
   background: #FFFFFF;
   border: 1px solid var(--border-color);
@@ -1088,9 +1033,6 @@ body {
   line-height: 1.5;
 }
 
-/* --------------------------------------------------------------------------
-   Responsive Media Queries
-   -------------------------------------------------------------------------- */
 @media (max-width: 1100px) {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);

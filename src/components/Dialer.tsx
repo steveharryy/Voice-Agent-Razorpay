@@ -4,19 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { CustomerRecord } from '@/types';
 import { PhoneCall, ShieldAlert, CheckCircle2, Key, X } from 'lucide-react';
 
-interface VapiDialerModalProps {
+interface DialerProps {
   customers: CustomerRecord[];
   selectedCustomer: CustomerRecord | null;
   onClose: () => void;
   onCallTriggered?: (res: any) => void;
 }
 
-export default function VapiDialerModal({
+export default function Dialer({
   customers,
   selectedCustomer,
   onClose,
   onCallTriggered,
-}: VapiDialerModalProps) {
+}: DialerProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [chosenCustomerId, setChosenCustomerId] = useState(
     selectedCustomer?.id || customers[0]?.id || 'cust_001'
@@ -29,7 +29,6 @@ export default function VapiDialerModal({
   const [callResponse, setCallResponse] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Load saved phone number or keys from localStorage
   useEffect(() => {
     const savedPhone = localStorage.getItem('rzp_test_phone');
     if (savedPhone) setPhoneNumber(savedPhone);
@@ -54,7 +53,6 @@ export default function VapiDialerModal({
       return;
     }
 
-    // Persist for convenience
     localStorage.setItem('rzp_test_phone', phoneNumber);
     if (vapiApiKey) localStorage.setItem('rzp_vapi_key', vapiApiKey);
     if (vapiPhoneId) localStorage.setItem('rzp_vapi_phone_id', vapiPhoneId);
@@ -111,7 +109,6 @@ export default function VapiDialerModal({
         </div>
 
         <div style={{ padding: '20px' }}>
-          {/* Compliance Notice */}
           <div
             style={{
               background: 'var(--status-warning-bg)',
@@ -131,7 +128,6 @@ export default function VapiDialerModal({
           </div>
 
           <form onSubmit={handleDial} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Phone Number Input */}
             <div>
               <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Your Destination Phone Number (E.164 Format)
@@ -150,7 +146,6 @@ export default function VapiDialerModal({
               </span>
             </div>
 
-            {/* Select Customer Scenario */}
             <div>
               <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Select Customer Scenario for Call Context
@@ -169,7 +164,6 @@ export default function VapiDialerModal({
               </select>
             </div>
 
-            {/* Customer preview pill */}
             {selectedCust && (
               <div
                 style={{
@@ -186,7 +180,6 @@ export default function VapiDialerModal({
               </div>
             )}
 
-            {/* Vapi API credentials toggle */}
             <div>
               <button
                 type="button"

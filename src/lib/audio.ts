@@ -1,5 +1,3 @@
-// Web Audio & Speech synthesis utilities for Razorpay Voice Recovery Agent
-
 class AudioEffectsManager {
   private ctx: AudioContext | null = null;
 
@@ -14,7 +12,6 @@ class AudioEffectsManager {
     return this.ctx;
   }
 
-  // Play phone ring tone
   playRingtone(): () => void {
     if (typeof window === 'undefined') return () => {};
     try {
@@ -61,7 +58,6 @@ class AudioEffectsManager {
     }
   }
 
-  // Play call connected tone
   playConnectChime(): void {
     if (typeof window === 'undefined') return;
     try {
@@ -69,8 +65,8 @@ class AudioEffectsManager {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-      osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15); // E5
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15);
       gain.gain.setValueAtTime(0.12, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
 
@@ -81,7 +77,6 @@ class AudioEffectsManager {
     } catch {}
   }
 
-  // Play hangup tone
   playHangupTone(): void {
     if (typeof window === 'undefined') return;
     try {
@@ -100,7 +95,6 @@ class AudioEffectsManager {
     } catch {}
   }
 
-  // Play signature Razorpay payment success chime
   playPaymentSuccess(): void {
     if (typeof window === 'undefined') return;
     try {
@@ -131,14 +125,9 @@ class AudioEffectsManager {
 
 export const audioEffects = new AudioEffectsManager();
 
-// ============================================================================
-// Robust English-Only Voice Manager (Eliminates non-English/Bengali fallbacks)
-// ============================================================================
-
 let cachedEnglishVoice: SpeechSynthesisVoice | null = null;
 let selectedVoiceURI: string | null = null;
 
-// Blacklist non-English terms to prevent regional locale mis-detection
 const EXCLUDED_TERMS = ['bangla', 'bengali', 'hindi', 'marathi', 'tamil', 'telugu', 'gujarati', 'kannada', 'malayalam', 'punjabi', 'urdu'];
 
 export function getAvailableEnglishVoices(): SpeechSynthesisVoice[] {
@@ -149,10 +138,8 @@ export function getAvailableEnglishVoices(): SpeechSynthesisVoice[] {
     const lang = v.lang.toLowerCase();
     const name = v.name.toLowerCase();
 
-    // Must strictly start with 'en' (e.g. en-US, en-GB, en-IN)
     if (!lang.startsWith('en')) return false;
 
-    // Must NOT contain any non-English terms
     if (EXCLUDED_TERMS.some((term) => name.includes(term) || lang.includes(term))) {
       return false;
     }
@@ -174,14 +161,12 @@ export function getSelectedVoice(): SpeechSynthesisVoice | null {
   const englishVoices = getAvailableEnglishVoices();
   if (englishVoices.length === 0) return null;
 
-  // 1. Check user preference from localStorage or state
   const savedUri = selectedVoiceURI || (typeof window !== 'undefined' ? localStorage.getItem('rzp_selected_voice') : null);
   if (savedUri) {
     const matched = englishVoices.find((v) => v.voiceURI === savedUri);
     if (matched) return matched;
   }
 
-  // 2. High-priority standard clear English voices (Female/Natural prioritized)
   const prioritizedNames = [
     'google us english',
     'microsoft zira',
@@ -209,21 +194,17 @@ export function getSelectedVoice(): SpeechSynthesisVoice | null {
     }
   }
 
-  // 3. Fallback: First valid English voice
   cachedEnglishVoice = englishVoices[0];
   return cachedEnglishVoice;
 }
 
-// Pre-warm voices on startup
 if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
     getSelectedVoice();
   };
-  // Trigger initial getVoices call to warm up the browser engine
   window.speechSynthesis.getVoices();
 }
 
-// Speak function strictly locking to English with zero drop
 export function speakText(
   text: string,
   onStart?: () => void,
@@ -248,7 +229,7 @@ export function speakText(
     if (isCancelled) return;
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // Always lock to en-US
+    utterance.lang = 'en-US';
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
@@ -262,7 +243,6 @@ export function speakText(
       if (isCancelled) return;
       onStart?.();
 
-      // Chrome keep-alive hack for longer sentences
       keepAliveInterval = setInterval(() => {
         if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
           if (window.speechSynthesis.speaking) {
@@ -278,9 +258,8 @@ export function speakText(
       onEnd?.();
     };
 
-    utterance.onerror = (e) => {
+    utterance.onerror = () => {
       if (keepAliveInterval) clearInterval(keepAliveInterval);
-      console.warn('[SpeechSynthesis] Utterance finished or error:', e);
       onEnd?.();
     };
 
@@ -291,7 +270,6 @@ export function speakText(
     }
   };
 
-  // 40ms safe delay to avoid Chrome synchronous cancel race condition
   const timeoutId = setTimeout(triggerUtterance, 40);
 
   return () => {

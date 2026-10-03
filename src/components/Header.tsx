@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Volume2, RotateCcw, Activity } from 'lucide-react';
+import { Menu, Search, Volume2, RotateCcw } from 'lucide-react';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -17,8 +17,6 @@ export default function Header({
   onToggleSidebar,
   searchTerm,
   setSearchTerm,
-  onOpenDialer,
-  onOpenArchitecture,
   onOpenVoiceSettings,
   onResetData,
 }: HeaderProps) {
@@ -47,7 +45,6 @@ export default function Header({
       </div>
 
       <div className="header-actions">
-        {/* System Status Indicator */}
         <div
           style={{
             display: 'inline-flex',
@@ -66,17 +63,15 @@ export default function Header({
           <span>Arya Agent Active</span>
         </div>
 
-        {/* Voice Selector button */}
         <button
           className="btn btn-secondary btn-sm"
           onClick={onOpenVoiceSettings}
-          title="Configure &amp; Test English Voice"
+          title="Configure & Test English Voice"
         >
           <Volume2 size={13} style={{ color: 'var(--indigo-primary)' }} />
           <span>Strict English</span>
         </button>
 
-        {/* Reset button */}
         <button
           className="btn btn-ghost btn-sm"
           onClick={onResetData}

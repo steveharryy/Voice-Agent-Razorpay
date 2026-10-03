@@ -3,42 +3,31 @@
 import React from 'react';
 import { CustomerRecord } from '@/types';
 import {
-  BarChart3,
   PieChart,
   TrendingUp,
   ShieldAlert,
-  CheckCircle2,
-  Clock,
-  PhoneCall,
-  DollarSign,
-  ArrowUpRight,
-  Send,
   Building2,
   QrCode,
   CreditCard,
 } from 'lucide-react';
 
-interface AnalyticsViewProps {
+interface AnalyticsProps {
   customers: CustomerRecord[];
 }
 
-export default function AnalyticsView({ customers }: AnalyticsViewProps) {
+export default function Analytics({ customers }: AnalyticsProps) {
   const totalAmount = customers.reduce((acc, c) => acc + c.amount, 0);
   const recoveredCustomers = customers.filter((c) => c.status === 'RECOVERED');
   const recoveredAmount = recoveredCustomers.reduce((acc, c) => acc + c.amount, 0);
   const recoveryRate = Math.round((recoveredAmount / (totalAmount || 1)) * 100);
 
   const pendingLinks = customers.filter((c) => c.status === 'PAYMENT_LINK_SENT').length;
-  const scheduledRetries = customers.filter((c) => c.status === 'RETRY_SCHEDULED').length;
-  const failedCount = customers.filter((c) => c.status === 'FAILED' || c.status === 'CALLING').length;
 
-  // Group by failure reason
   const failureCounts: Record<string, number> = {};
   customers.forEach((c) => {
     failureCounts[c.failureReason] = (failureCounts[c.failureReason] || 0) + 1;
   });
 
-  // Group by mandate type
   const mandateCounts: Record<string, number> = {};
   customers.forEach((c) => {
     mandateCounts[c.mandateType] = (mandateCounts[c.mandateType] || 0) + 1;
@@ -46,7 +35,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -66,7 +54,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
         </div>
       </div>
 
-      {/* Top Summary Banner */}
       <div
         style={{
           background: '#FFFFFF',
@@ -121,9 +108,7 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
         </div>
       </div>
 
-      {/* Grid of Analytical Breakdown Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
-        {/* Failure Reason Root-Cause Distribution */}
         <div className="blueprint-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -169,13 +154,12 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
           </div>
         </div>
 
-        {/* Payment Rails & Mandate Breakdown */}
         <div className="blueprint-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <PieChart size={16} style={{ color: 'var(--indigo-primary)' }} />
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Payment Rails &amp; Mandate Share
+                Payment Rails & Mandate Share
               </h3>
             </div>
             <span style={{ fontSize: '11.5px', color: 'var(--text-secondary)' }}>NPCI / Gateway</span>
@@ -221,7 +205,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
         </div>
       </div>
 
-      {/* Recovery Conversion Funnel */}
       <div className="blueprint-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -234,7 +217,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-          {/* Stage 1 */}
           <div
             style={{
               background: '#F8F9FB',
@@ -254,7 +236,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
             </div>
           </div>
 
-          {/* Stage 2 */}
           <div
             style={{
               background: '#F8F9FB',
@@ -274,7 +255,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
             </div>
           </div>
 
-          {/* Stage 3 */}
           <div
             style={{
               background: '#F8F9FB',
@@ -294,7 +274,6 @@ export default function AnalyticsView({ customers }: AnalyticsViewProps) {
             </div>
           </div>
 
-          {/* Stage 4 */}
           <div
             style={{
               background: 'var(--status-success-bg)',

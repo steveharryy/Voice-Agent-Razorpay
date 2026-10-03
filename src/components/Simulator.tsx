@@ -6,8 +6,8 @@ import {
   generateInitialGreeting,
   processCustomerInput,
   AgentResponse,
-} from '@/lib/recoveryAgent';
-import { speakText, audioEffects } from '@/lib/audioUtils';
+} from '@/lib/agent';
+import { speakText, audioEffects } from '@/lib/audio';
 import {
   Mic,
   MicOff,
@@ -17,23 +17,21 @@ import {
   Volume2,
   VolumeX,
   Radio,
-  Sparkles,
-  Info,
 } from 'lucide-react';
 
-interface VoiceCallModalProps {
+interface SimulatorProps {
   customer: CustomerRecord;
   onClose: () => void;
   onCustomerUpdate: (updated: CustomerRecord) => void;
   onOpenCheckout: (customer: CustomerRecord) => void;
 }
 
-export default function VoiceCallModal({
+export default function Simulator({
   customer,
   onClose,
   onCustomerUpdate,
   onOpenCheckout,
-}: VoiceCallModalProps) {
+}: SimulatorProps) {
   const [callState, setCallState] = useState<'RINGING' | 'CONNECTED' | 'ENDED'>('RINGING');
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -54,12 +52,10 @@ export default function VoiceCallModal({
   const cancelSpeechRef = useRef<(() => void) | null>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll transcript
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
 
-  // Check speech recognition support
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hasRec = !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
@@ -67,7 +63,6 @@ export default function VoiceCallModal({
     }
   }, []);
 
-  // Call duration counter
   useEffect(() => {
     let interval: any = null;
     if (callState === 'CONNECTED') {
@@ -80,9 +75,7 @@ export default function VoiceCallModal({
     };
   }, [callState]);
 
-  // Initial call sequence: Snappy 900ms ring, then connect and Arya speaks
   useEffect(() => {
-    // Unlock AudioContext via user interaction
     audioEffects.getContext();
 
     const stopRing = audioEffects.playRingtone();
@@ -159,8 +152,7 @@ export default function VoiceCallModal({
         }
       };
 
-      recognition.onerror = (e: any) => {
-        // Silently catch common speech recognition errors (no-speech, abort)
+      recognition.onerror = () => {
         setIsListening(false);
       };
 
@@ -188,7 +180,6 @@ export default function VoiceCallModal({
   const handleUserInput = (inputText: string) => {
     if (!inputText.trim()) return;
 
-    // Interrupt current speech immediately (barge-in)
     stopVoiceRecognition();
     if (cancelSpeechRef.current) cancelSpeechRef.current();
 
@@ -223,7 +214,6 @@ export default function VoiceCallModal({
       });
     }
 
-    // Snappy conversational turnaround
     setTimeout(() => {
       addTranscriptItem('agent', agentRes.replyText);
 
@@ -267,7 +257,6 @@ export default function VoiceCallModal({
   return (
     <div className="modal-overlay" onClick={handleEndCall}>
       <div className="call-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Softphone Header */}
         <div className="call-modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span
@@ -321,7 +310,6 @@ export default function VoiceCallModal({
           </div>
         </div>
 
-        {/* Softphone Stage Box */}
         <div className="call-stage-box">
           <div style={{ fontSize: '15.5px', fontWeight: 700, color: 'var(--text-primary)' }}>
             {customer.name}
@@ -330,7 +318,6 @@ export default function VoiceCallModal({
             {customer.merchantName} ({customer.planName}) • ₹{customer.amount.toLocaleString('en-IN')} Due
           </div>
 
-          {/* Minimalist Stereo Frequency Bars */}
           <div className="audio-freq-bars">
             {[8, 16, 6, 18, 12, 8, 16, 10, 14, 6, 16, 10].map((h, i) => (
               <div
@@ -359,7 +346,6 @@ export default function VoiceCallModal({
           </div>
         </div>
 
-        {/* Real-time In-Call Action Notice: Instant Payment Link */}
         {activeAction?.actionTaken === 'SEND_PAYMENT_LINK' && (
           <div
             style={{
@@ -394,7 +380,6 @@ export default function VoiceCallModal({
           </div>
         )}
 
-        {/* Live Conversation Transcript Feed */}
         <div className="transcript-container">
           {transcript.length === 0 ? (
             <div style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '12px', padding: '14px' }}>
@@ -420,7 +405,6 @@ export default function VoiceCallModal({
           <div ref={transcriptEndRef} />
         </div>
 
-        {/* Quick Suggestion Chips (1-Click Interaction) */}
         {callState === 'CONNECTED' && (
           <div className="chips-container">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -447,7 +431,6 @@ export default function VoiceCallModal({
           </div>
         )}
 
-        {/* Footer Voice Input Bar */}
         <div className="call-modal-footer">
           <button
             className={`btn btn-sm ${isListening ? 'btn-primary' : 'btn-secondary'}`}

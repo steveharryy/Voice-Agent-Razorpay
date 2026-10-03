@@ -10,9 +10,7 @@ import {
   Volume2,
   RotateCcw,
   Headphones,
-  Sliders,
   X,
-  ShieldCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -52,7 +50,6 @@ export default function Sidebar({
       )}
 
       <aside className={`app-sidebar ${isOpen ? 'open' : ''}`}>
-        {/* Brand */}
         <div className="sidebar-brand">
           <div className="brand-icon">
             <Sparkles size={18} />
@@ -82,7 +79,6 @@ export default function Sidebar({
           )}
         </div>
 
-        {/* Navigation */}
         <nav className="sidebar-nav">
           <div className="sidebar-nav-title">Operations</div>
 
@@ -143,7 +139,7 @@ export default function Sidebar({
           </div>
 
           <div className="sidebar-nav-title" style={{ marginTop: '16px' }}>
-            Settings &amp; Tools
+            Settings & Tools
           </div>
 
           <div
@@ -186,7 +182,6 @@ export default function Sidebar({
           </div>
         </nav>
 
-        {/* Footer */}
         <div className="sidebar-footer">
           <div className="sidebar-status-box">
             <div className="sidebar-status-header">

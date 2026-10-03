@@ -14,7 +14,7 @@ import {
   Mail,
 } from 'lucide-react';
 
-interface CustomerDrawerProps {
+interface DrawerProps {
   customer: CustomerRecord | null;
   onClose: () => void;
   onStartVoiceCall: (customer: CustomerRecord) => void;
@@ -22,13 +22,13 @@ interface CustomerDrawerProps {
   onQuickSendLink: (customer: CustomerRecord) => void;
 }
 
-export default function CustomerDrawer({
+export default function Drawer({
   customer,
   onClose,
   onStartVoiceCall,
   onOpenCheckout,
   onQuickSendLink,
-}: CustomerDrawerProps) {
+}: DrawerProps) {
   if (!customer) return null;
 
   const isRecovered = customer.status === 'RECOVERED';
@@ -37,7 +37,6 @@ export default function CustomerDrawer({
   return (
     <div className="drawer-backdrop" onClick={onClose}>
       <div className="inspection-drawer" onClick={(e) => e.stopPropagation()}>
-        {/* Top Header */}
         <div className="drawer-top">
           <div>
             <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>
@@ -56,9 +55,7 @@ export default function CustomerDrawer({
           </button>
         </div>
 
-        {/* Content */}
         <div className="drawer-content">
-          {/* Customer Summary Card */}
           <div className="drawer-card" style={{ background: 'var(--indigo-subtle)', borderColor: 'var(--indigo-border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -95,7 +92,6 @@ export default function CustomerDrawer({
             </div>
           </div>
 
-          {/* Action Trigger Buttons */}
           <div style={{ display: 'flex', gap: '8px' }}>
             {!isRecovered ? (
               <>
@@ -150,7 +146,6 @@ export default function CustomerDrawer({
             )}
           </div>
 
-          {/* Autopay Failure Diagnostics */}
           <div className="drawer-section">
             <div className="drawer-section-title">Autopay Failure Diagnostics</div>
             <div className="drawer-card" style={{ borderLeft: '3px solid #DC2626', background: 'var(--status-danger-bg)' }}>
@@ -171,9 +166,8 @@ export default function CustomerDrawer({
             </div>
           </div>
 
-          {/* Mandate Registration Metadata */}
           <div className="drawer-section">
-            <div className="drawer-section-title">NPCI &amp; Mandate Details</div>
+            <div className="drawer-section-title">NPCI & Mandate Details</div>
             <div className="drawer-card">
               <div className="drawer-row">
                 <span className="drawer-row-label">Mandate Type</span>
@@ -206,7 +200,6 @@ export default function CustomerDrawer({
             </div>
           </div>
 
-          {/* Call Transcript Audit */}
           <div className="drawer-section">
             <div className="drawer-section-title">Voice Recovery Audit History</div>
             <div className="drawer-card">

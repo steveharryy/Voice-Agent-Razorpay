@@ -6,9 +6,6 @@ export async function POST(request: Request) {
     const event = payload.event;
     const paymentEntity = payload.payload?.payment?.entity || payload.data;
 
-    console.log(`[Razorpay Webhook Received] Event: ${event}`, paymentEntity);
-
-    // Respond 200 OK immediately as per Razorpay webhook contract
     return NextResponse.json({
       received: true,
       event,

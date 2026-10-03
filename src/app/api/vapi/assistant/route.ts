@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
-import { buildVapiAssistantConfig, VAPI_ASSISTANT_SYSTEM_PROMPT, VAPI_TOOL_DEFINITIONS } from '@/data/vapiAssistantConfig';
+import { INITIAL_CUSTOMERS, buildVapiAssistantConfig, VAPI_ASSISTANT_SYSTEM_PROMPT, VAPI_TOOL_DEFINITIONS } from '@/data/customers';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

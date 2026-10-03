@@ -1,7 +1,3 @@
-// ============================================================================
-// Types for Razorpay Autopay Recovery Voice Agent System
-// ============================================================================
-
 export type MandateType = 'UPI_AUTOPAY' | 'E_NACH' | 'DEBIT_CARD' | 'CREDIT_CARD';
 
 export type AutopayFailureReason =
@@ -33,28 +29,28 @@ export interface CallLogItem {
 }
 
 export interface CustomerRecord {
-  id: string; // e.g., "cust_001"
-  subscriptionId: string; // e.g., "sub_Nx81z9a"
+  id: string;
+  subscriptionId: string;
   name: string;
   phone: string;
   email: string;
-  merchantName: string; // e.g., "Netflix India", "Cult.fit", "Notion"
+  merchantName: string;
   merchantLogo?: string;
   merchantCategory: 'OTT' | 'Fitness' | 'SaaS' | 'Fintech' | 'EdTech' | 'Telecom' | 'Insurance';
-  planName: string; // e.g., "Premium 4K Ultra", "ELITE Pass", "Enterprise Seat"
-  amount: number; // in INR (₹)
+  planName: string;
+  amount: number;
   billingFrequency: 'Monthly' | 'Quarterly' | 'Yearly';
   mandateType: MandateType;
   mandateDetails: {
-    bankOrProvider: string; // "HDFC Bank", "ICICI Bank", "Google Pay / Axis", "SBI"
-    identifier: string; // "•••• 4128" or "user@okaxis"
-    mandateLimit?: number; // e.g. ₹5,000 max mandate cap
+    bankOrProvider: string;
+    identifier: string;
+    mandateLimit?: number;
     expiryDate?: string;
   };
   dueDate: string;
   failedAt: string;
   failureReason: AutopayFailureReason;
-  razorpayErrorCode: string; // e.g. "BAD_REQUEST_PAYMENT_ACCOUNT_INSUFFICIENT_BALANCE"
+  razorpayErrorCode: string;
   failureDescription: string;
   attemptCount: number;
   maxAttempts: number;

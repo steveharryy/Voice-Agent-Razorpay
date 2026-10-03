@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Layers, X, ShieldCheck, Zap, Server, PhoneCall, RefreshCw, Database } from 'lucide-react';
+import { Layers, X, ShieldCheck, Zap, Server, RefreshCw } from 'lucide-react';
 
-interface ArchitectureModalProps {
+interface ArchitectureProps {
   onClose: () => void;
 }
 
-export default function ArchitectureModal({ onClose }: ArchitectureModalProps) {
+export default function Architecture({ onClose }: ArchitectureProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
@@ -32,12 +32,11 @@ export default function ArchitectureModal({ onClose }: ArchitectureModalProps) {
         </div>
 
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Executive Summary */}
           <div className="blueprint-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <Zap size={16} style={{ color: 'var(--indigo-primary)' }} />
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Executive System Design &amp; Problem Statement
+                Executive System Design & Problem Statement
               </h3>
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
@@ -45,7 +44,6 @@ export default function ArchitectureModal({ onClose }: ArchitectureModalProps) {
             </p>
           </div>
 
-          {/* Architecture Diagram */}
           <div className="blueprint-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <Server size={16} style={{ color: 'var(--indigo-primary)' }} />
@@ -113,12 +111,11 @@ export default function ArchitectureModal({ onClose }: ArchitectureModalProps) {
             </div>
           </div>
 
-          {/* Autopay Failure Taxonomy */}
           <div className="blueprint-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <RefreshCw size={16} style={{ color: 'var(--status-success-text)' }} />
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Autopay Failure Codes &amp; Voice Resolution Matrix
+                Autopay Failure Codes & Voice Resolution Matrix
               </h3>
             </div>
             <div style={{ overflowX: 'auto' }}>
@@ -167,19 +164,18 @@ export default function ArchitectureModal({ onClose }: ArchitectureModalProps) {
             </div>
           </div>
 
-          {/* Voice Latency & Optimization */}
           <div className="blueprint-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <ShieldCheck size={16} style={{ color: 'var(--status-success-text)' }} />
               <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Telephony Performance &amp; Latency Engineering (&lt;520ms)
+                Telephony Performance & Latency Engineering (&lt;520ms)
               </h3>
             </div>
             <ul style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7', paddingLeft: '20px' }}>
               <li><strong>Streaming WebSockets:</strong> Audio streams directly via bidirectional WebSockets (PCM 16-bit 8kHz for PSTN, 24kHz for WebRTC), eliminating chunk buffering.</li>
-              <li><strong>Interruption &amp; Barge-in Handling:</strong> Speech detection halts agent audio within 80ms of human speech onset, creating natural conversational turn-taking.</li>
+              <li><strong>Interruption & Barge-in Handling:</strong> Speech detection halts agent audio within 80ms of human speech onset, creating natural conversational turn-taking.</li>
               <li><strong>Speculative Tool Execution:</strong> Payment links are pre-generated during customer greeting stage and cached, allowing instantaneous dispatch upon verbal confirmation.</li>
-              <li><strong>RBI &amp; PCI-DSS Compliance:</strong> Agent explicitly enforces zero collection of OTP, CVV, or UPI PIN over telephony. All transactions complete through Razorpay's end-to-end encrypted hosted checkout.</li>
+              <li><strong>RBI & PCI-DSS Compliance:</strong> Agent explicitly enforces zero collection of OTP, CVV, or UPI PIN over telephony. All transactions complete through Razorpay's end-to-end encrypted hosted checkout.</li>
             </ul>
           </div>
         </div>

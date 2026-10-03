@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CustomerRecord } from '@/types';
-import { audioEffects } from '@/lib/audioUtils';
+import { audioEffects } from '@/lib/audio';
 import confetti from 'canvas-confetti';
 import {
   ShieldCheck,
@@ -15,17 +15,17 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-interface RazorpayCheckoutModalProps {
+interface CheckoutProps {
   customer: CustomerRecord;
   onClose: () => void;
   onPaymentSuccess: (customer: CustomerRecord, paymentDetails: any) => void;
 }
 
-export default function RazorpayCheckoutModal({
+export default function Checkout({
   customer,
   onClose,
   onPaymentSuccess,
-}: RazorpayCheckoutModalProps) {
+}: CheckoutProps) {
   const [activeTab, setActiveTab] = useState<'UPI' | 'CARD' | 'NETBANKING'>('UPI');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
@@ -37,12 +37,10 @@ export default function RazorpayCheckoutModal({
     const generatedPayId = `pay_rzp_${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     setPaymentId(generatedPayId);
 
-    // Simulate gateway authorization latency (800ms)
     setTimeout(async () => {
       setIsProcessing(false);
       setIsCompleted(true);
 
-      // Play signature chime & trigger confetti
       audioEffects.playPaymentSuccess();
       try {
         confetti({
@@ -53,7 +51,6 @@ export default function RazorpayCheckoutModal({
         });
       } catch {}
 
-      // Fire simulated Razorpay webhook
       try {
         await fetch('/api/webhooks/razorpay', {
           method: 'POST',
@@ -89,7 +86,6 @@ export default function RazorpayCheckoutModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Razorpay Standard Header */}
         <div className="checkout-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8' }}>
@@ -117,7 +113,6 @@ export default function RazorpayCheckoutModal({
           </div>
         </div>
 
-        {/* Body */}
         <div className="checkout-body">
           {isCompleted ? (
             <div style={{ textAlign: 'center', padding: '24px 10px' }}>
@@ -171,7 +166,6 @@ export default function RazorpayCheckoutModal({
             </div>
           ) : (
             <>
-              {/* Payment Methods Tabs */}
               <div className="checkout-method-tabs">
                 <div
                   className={`checkout-tab ${activeTab === 'UPI' ? 'active' : ''}`}

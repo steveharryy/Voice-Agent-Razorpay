@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
+import { INITIAL_CUSTOMERS } from '@/data/customers';
 import { CustomerRecord } from '@/types';
 
-// In-memory store for dev session
 let customersStore: CustomerRecord[] = JSON.parse(JSON.stringify(INITIAL_CUSTOMERS));
 
 export async function GET() {

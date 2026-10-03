@@ -19,9 +19,6 @@ export function processCustomerInput(
 ): AgentResponse {
   const text = userInput.toLowerCase().trim();
 
-  // --------------------------------------------------------------------------
-  // Check for negations, pranks, jokes ("i fooled you", "didn't pay", "haven't paid")
-  // --------------------------------------------------------------------------
   const hasNegation =
     text.includes("didn't") ||
     text.includes("did not") ||
@@ -33,7 +30,7 @@ export function processCustomerInput(
     text.includes("kidding") ||
     text.includes("lied") ||
     text.includes("prank") ||
-    text.includes("fake");
+    (text.includes("fake") && !text.includes("fake call"));
 
   if (hasNegation) {
     return {
@@ -46,9 +43,6 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Claim of prior payment ("already paid", "paid already", "money was deducted")
-  // --------------------------------------------------------------------------
   const claimsAlreadyPaid =
     text.includes('already paid') ||
     text.includes('paid already') ||
@@ -78,9 +72,6 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // In-Call Payment Completed Affirmation (Customer just paid the link now)
-  // --------------------------------------------------------------------------
   const justPaidLink =
     text.includes('paid the link') ||
     text.includes('paid via link') ||
@@ -101,19 +92,26 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Identity confirmation (initial greeting response)
-  // --------------------------------------------------------------------------
-  if (
-    history.filter((h) => h.sender === 'customer').length <= 1 &&
-    (text.includes('yes') ||
-      text.includes('speaking') ||
-      text.includes('this is') ||
-      text.includes('yeah') ||
-      text.includes('yep') ||
-      text.includes('hi') ||
-      text.includes('hello'))
-  ) {
+  const isFirstCustomerMessage = history.filter((h) => h.sender === 'customer').length <= 1;
+  const isIdentityConfirmation =
+    text === 'yes' ||
+    text === 'yeah' ||
+    text === 'yep' ||
+    text === 'hi' ||
+    text === 'hello' ||
+    text.includes('speaking') ||
+    /^(yes|yeah|yep|hi|hello)\b/.test(text) ||
+    /\bthis is [a-z]/.test(text);
+
+  const hasPaymentIntent =
+    text.includes('send') ||
+    text.includes('link') ||
+    text.includes('cancel') ||
+    text.includes('refund') ||
+    text.includes('dispute') ||
+    text.includes('pay');
+
+  if (isFirstCustomerMessage && isIdentityConfirmation && !hasPaymentIntent) {
     const reasonText = getFailureReasonExplanation(customer);
     return {
       replyText: `Thank you for confirming, ${customer.name}. As mentioned, your scheduled recurring charge of ₹${customer.amount} for ${customer.merchantName} (${customer.planName}) could not be completed. ${reasonText} Would you prefer me to send an instant Razorpay Payment Link to your WhatsApp so you can clear this in 30 seconds via UPI, or would you like to schedule a retry?`,
@@ -126,9 +124,6 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Reason for failure query
-  // --------------------------------------------------------------------------
   if (
     text.includes('why') ||
     text.includes('reason') ||
@@ -148,18 +143,15 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Security / Trust / Scam Verification
-  // --------------------------------------------------------------------------
   if (
     text.includes('safe') ||
     text.includes('scam') ||
     text.includes('fraud') ||
     text.includes('otp') ||
-    text.includes('pin') ||
     text.includes('security') ||
     text.includes('trust') ||
-    text.includes('genuine')
+    text.includes('genuine') ||
+    (text.includes('pin') && !text.includes('opinion'))
   ) {
     return {
       replyText: `I completely understand your vigilance! Razorpay adheres to RBI guidelines and PCI-DSS Level 1 security. I will NEVER ask for your UPI PIN, OTP, CVV, or passwords over this call. The payment link will be sent directly from official Razorpay verified handles and opens a secure 256-bit encrypted checkout. Shall I send it to your WhatsApp now?`,
@@ -171,9 +163,29 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Request for payment link
-  // --------------------------------------------------------------------------
+  if (
+    text.includes('cancel') ||
+    text.includes('stop') ||
+    text.includes('dispute') ||
+    text.includes('not mine') ||
+    text.includes('dont want') ||
+    text.includes("don't want") ||
+    text.includes('refund')
+  ) {
+    return {
+      replyText: `I hear you, ${customer.name}. To ensure you are not charged inadvertently, I have paused future recurring debits for this plan and escalated your ticket to ${customer.merchantName}'s customer relationship desk. An executive will reach out to you within 2 business hours.`,
+      actionTaken: 'ESCALATE_TO_HUMAN',
+      actionDetails: {
+        reason: 'Customer requested cancellation / dispute review',
+      },
+      nextSuggestedReplies: [
+        'Thank you, appreciate it',
+        'Have a good day',
+      ],
+      isCallCompleted: true,
+    };
+  }
+
   if (
     text.includes('send') ||
     text.includes('link') ||
@@ -207,9 +219,29 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Schedule retry
-  // --------------------------------------------------------------------------
+  if (
+    text.includes('added funds') ||
+    text.includes('added money') ||
+    text.includes('topped up') ||
+    text.includes('balance is available') ||
+    text.includes('funds available') ||
+    text.includes('try again now') ||
+    text.includes('retry now')
+  ) {
+    return {
+      replyText: `Excellent! Since you have topped up your account balance, I am initiating an immediate re-attempt via Razorpay Smart-Switch routing to ${customer.mandateDetails.bankOrProvider}. Please look out for the notification from your bank.`,
+      actionTaken: 'RETRY_NOW',
+      actionDetails: {
+        timestamp: new Date().toISOString(),
+      },
+      nextSuggestedReplies: [
+        'Great, thanks!',
+        'Can you also send the receipt?',
+      ],
+      isCallCompleted: true,
+    };
+  }
+
   if (
     text.includes('tomorrow') ||
     text.includes('later') ||
@@ -235,35 +267,6 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Immediate retry (customer explicitly added funds/money)
-  // --------------------------------------------------------------------------
-  if (
-    text.includes('added funds') ||
-    text.includes('added money') ||
-    text.includes('topped up') ||
-    text.includes('balance is available') ||
-    text.includes('funds available') ||
-    text.includes('try again now') ||
-    text.includes('retry now')
-  ) {
-    return {
-      replyText: `Excellent! Since you have topped up your account balance, I am initiating an immediate re-attempt via Razorpay Smart-Switch routing to ${customer.mandateDetails.bankOrProvider}. Please look out for the notification from your bank.`,
-      actionTaken: 'RETRY_NOW',
-      actionDetails: {
-        timestamp: new Date().toISOString(),
-      },
-      nextSuggestedReplies: [
-        'Great, thanks!',
-        'Can you also send the receipt?',
-      ],
-      isCallCompleted: true,
-    };
-  }
-
-  // --------------------------------------------------------------------------
-  // Mandate update / Card expired
-  // --------------------------------------------------------------------------
   if (
     text.includes('expired') ||
     text.includes('new card') ||
@@ -285,35 +288,6 @@ export function processCustomerInput(
     };
   }
 
-  // --------------------------------------------------------------------------
-  // Cancellation or Dispute
-  // --------------------------------------------------------------------------
-  if (
-    text.includes('cancel') ||
-    text.includes('stop') ||
-    text.includes('dispute') ||
-    text.includes('not mine') ||
-    text.includes('dont want') ||
-    text.includes("don't want") ||
-    text.includes('refund')
-  ) {
-    return {
-      replyText: `I hear you, ${customer.name}. To ensure you are not charged inadvertently, I have paused future recurring debits for this plan and escalated your ticket to ${customer.merchantName}'s customer relationship desk. An executive will reach out to you within 2 business hours.`,
-      actionTaken: 'ESCALATE_TO_HUMAN',
-      actionDetails: {
-        reason: 'Customer requested cancellation / dispute review',
-      },
-      nextSuggestedReplies: [
-        'Thank you, appreciate it',
-        'Have a good day',
-      ],
-      isCallCompleted: true,
-    };
-  }
-
-  // --------------------------------------------------------------------------
-  // Default fallback / Conversational wrap-up
-  // --------------------------------------------------------------------------
   return {
     replyText: `I understand, ${customer.name}. To ensure your ${customer.merchantName} access continues without interruption, would you like me to send a WhatsApp payment link for ₹${customer.amount}, or would you prefer I schedule a retry for tomorrow?`,
     nextSuggestedReplies: [

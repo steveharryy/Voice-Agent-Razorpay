@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { INITIAL_CUSTOMERS } from '@/data/mockCustomers';
-import { buildVapiAssistantConfig } from '@/data/vapiAssistantConfig';
+import { INITIAL_CUSTOMERS, buildVapiAssistantConfig } from '@/data/customers';
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +10,6 @@ export async function POST(request: Request) {
     const phoneId = vapiPhoneNumberId || process.env.VAPI_PHONE_NUMBER_ID;
     const assistantId = vapiAssistantId || process.env.VAPI_ASSISTANT_ID;
 
-    // Look up customer
     const customer = INITIAL_CUSTOMERS.find((c) => c.id === customerId);
     if (!customer) {
       return NextResponse.json({ success: false, error: 'Customer not found' }, { status: 404 });
@@ -21,7 +19,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Phone number is required' }, { status: 400 });
     }
 
-    // Check if real Vapi credentials are provided
     if (apiKey && (phoneId || assistantId)) {
       try {
         const payload: any = {
@@ -44,7 +41,6 @@ export async function POST(request: Request) {
             },
           };
         } else {
-          // Use transient inline assistant config
           payload.assistant = buildVapiAssistantConfig(customer);
         }
 
@@ -83,7 +79,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // If no Vapi credentials yet, return helpful instructions for real telephony & invite browser demo
     return NextResponse.json({
       success: true,
       mode: 'SIMULATION_READY',

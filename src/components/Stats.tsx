@@ -4,11 +4,11 @@ import React from 'react';
 import { CustomerRecord } from '@/types';
 import { AlertCircle, TrendingUp, CheckCircle2, Clock } from 'lucide-react';
 
-interface StatsCardsProps {
+interface StatsProps {
   customers: CustomerRecord[];
 }
 
-export default function StatsCards({ customers }: StatsCardsProps) {
+export default function Stats({ customers }: StatsProps) {
   const totalAmount = customers.reduce((acc, c) => acc + c.amount, 0);
   const recoveredCustomers = customers.filter((c) => c.status === 'RECOVERED');
   const recoveredAmount = recoveredCustomers.reduce((acc, c) => acc + c.amount, 0);
@@ -20,7 +20,6 @@ export default function StatsCards({ customers }: StatsCardsProps) {
 
   return (
     <div className="metrics-grid">
-      {/* Metric 1 */}
       <div className="metric-card">
         <div className="metric-header">
           <span className="metric-label">Total Overdue Autopay</span>
@@ -35,7 +34,6 @@ export default function StatsCards({ customers }: StatsCardsProps) {
         </div>
       </div>
 
-      {/* Metric 2 */}
       <div className="metric-card">
         <div className="metric-header">
           <span className="metric-label">Recovered Revenue</span>
@@ -52,7 +50,6 @@ export default function StatsCards({ customers }: StatsCardsProps) {
         </div>
       </div>
 
-      {/* Metric 3 */}
       <div className="metric-card">
         <div className="metric-header">
           <span className="metric-label">Recovery Success Rate</span>
@@ -69,7 +66,6 @@ export default function StatsCards({ customers }: StatsCardsProps) {
         </div>
       </div>
 
-      {/* Metric 4 */}
       <div className="metric-card">
         <div className="metric-header">
           <span className="metric-label">In-Flight Queue</span>
